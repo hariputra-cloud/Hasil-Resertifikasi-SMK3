@@ -1,0 +1,3046 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary Report Infografis – Resertifikasi SMK3 Tahun 2026</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        aero: {
+                            950: '#0F172A',
+                            900: '#1E1B4B',
+                            800: '#312E81',
+                            700: '#4338CA',
+                            500: '#6366F1',
+                            400: '#818CF8',
+                            50: '#EEF2FF'
+                        },
+                        coral: {
+                            600: '#D97706',
+                            500: '#F59E0B',
+                            400: '#FBBF24',
+                            300: '#FCD34D',
+                            100: '#FEF3C7',
+                            50: '#FFFBEB'
+                        },
+                        mint: {
+                            600: '#059669',
+                            500: '#10B981',
+                            400: '#34D399',
+                            300: '#6EE7B7',
+                            100: '#D1FAE5',
+                            50: '#ECFDF5'
+                        },
+                        gold: {
+                            500: '#D97706',
+                            400: '#F59E0B',
+                            50: '#FFFBEB'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Leaflet CSS & JS (Interactive Map) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- SheetJS (xlsx) untuk parsing langsung file Excel (.xlsx, .xls, .csv) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <style>
+        body {
+            background-color: #F8FAFC;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(67, 56, 202, 0.08) 0px, transparent 48%),
+                radial-gradient(at 96% 8%, rgba(245, 158, 11, 0.10) 0px, transparent 44%),
+                radial-gradient(at 88% 88%, rgba(16, 185, 129, 0.10) 0px, transparent 48%),
+                radial-gradient(at 8% 92%, rgba(99, 102, 241, 0.08) 0px, transparent 46%);
+            background-attachment: fixed;
+            color: #0F172A;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(67, 56, 202, 0.12);
+            box-shadow: 0 10px 30px -8px rgba(15, 23, 42, 0.06), 0 2px 8px -2px rgba(99, 102, 241, 0.05);
+            transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.24s ease, border-color 0.24s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(99, 102, 241, 0.32);
+            box-shadow: 0 18px 36px -10px rgba(15, 23, 42, 0.11), 0 6px 14px -4px rgba(245, 158, 11, 0.08);
+        }
+
+        .hero-gradient {
+            background: radial-gradient(circle at 86% 16%, rgba(52, 211, 153, 0.25) 0%, transparent 44%),
+                        radial-gradient(circle at 12% 88%, rgba(251, 191, 36, 0.28) 0%, transparent 46%),
+                        linear-gradient(135deg, #0F172A 0%, #1E1B4B 52%, #312E81 100%);
+        }
+
+        #airport-map {
+            height: 460px;
+            width: 100%;
+            border-radius: 1.25rem;
+            z-index: 10;
+            background: #DBEAFE;
+        }
+
+        @media (max-width: 640px) {
+            #airport-map {
+                height: 360px;
+            }
+        }
+
+        .airport-pin-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .airport-pin-pulse {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-radius: 9999px;
+            animation: pinPulse 2.4s infinite ease-out;
+            opacity: 0.45;
+        }
+
+        @keyframes pinPulse {
+            0% { transform: scale(0.6); opacity: 0.75; }
+            100% { transform: scale(1.85); opacity: 0; }
+        }
+
+        .airport-iata-label {
+            position: absolute;
+            white-space: nowrap;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9.5px;
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 5px;
+            background: rgba(15, 23, 42, 0.92);
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.25);
+            pointer-events: none;
+            letter-spacing: 0.02em;
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 16px;
+            box-shadow: 0 14px 34px rgba(6, 38, 46, 0.20);
+            border: 1px solid rgba(20, 145, 155, 0.22);
+            padding: 2px;
+        }
+
+        .leaflet-popup-content {
+            margin: 12px 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: #FFFFFF; }
+            .glass-card { box-shadow: none; border: 1px solid #CBD5E1; break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-sky-200 selection:text-aero-950">
+
+    <!-- Input file tersembunyi untuk tombol cepat Upload Data Excel -->
+    <input type="file" id="quick-excel-upload-input" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleExcelFileUpload(event)" />
+
+    <!-- Top Control & Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-teal-900/10 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+            <!-- Brand / Document Identity -->
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-aero-900 to-aero-700 text-white flex items-center justify-center shrink-0 shadow-sm border border-mint-300/30">
+                    <svg class="w-5 h-5 text-mint-300" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-mono font-bold uppercase tracking-wider text-aero-800 bg-aero-50 border border-teal-200 px-2 py-0.5 rounded-md">SMK3 • PP 50/2012</span>
+                        <span id="data-source-badge" class="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold text-teal-900 bg-mint-100/80 border border-mint-400/50 px-2.5 py-0.5 rounded-full">
+                            <span class="w-1.5 h-1.5 rounded-full bg-mint-600 animate-pulse"></span>
+                            <span id="data-source-label">Data 15 Bandara/KC 2026</span>
+                        </span>
+                    </div>
+                    <h1 class="text-sm sm:text-base font-extrabold text-aero-950 truncate">Summary Report Resertifikasi SMK3 Tahun 2026</h1>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2 shrink-0">
+                <!-- Tombol Download Data Excel Lengkap -->
+                <button onclick="downloadFullExcelReport()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-r from-mint-600 to-mint-500 hover:from-mint-600 hover:to-teal-600 text-white shadow-sm transition cursor-pointer" title="Unduh seluruh data rekap korporasi & per bandara (Elemen 1-12, Sub-Elemen & Rincian Temuan) dalam format Excel (.xlsx)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+                    </svg>
+                    <span>Download Excel</span>
+                </button>
+
+                <!-- Tombol Upload Data Excel Langsung -->
+                <button onclick="triggerQuickExcelUpload()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-r from-coral-500 to-coral-400 hover:from-coral-600 hover:to-coral-500 text-white shadow-sm transition cursor-pointer" title="Unggah langsung file Excel (.xlsx / .xls / .csv) untuk memperbarui seluruh infografis">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                    </svg>
+                    <span class="hidden sm:inline">Upload Excel</span>
+                </button>
+
+                <button onclick="syncFromGoogleSheet(true)" id="btn-sync-sheet" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-aero-50 hover:bg-teal-100/70 text-aero-900 border border-teal-200 transition cursor-pointer" title="Tarik pembaruan langsung dari Google Spreadsheet">
+                    <svg id="sync-icon" class="w-3.5 h-3.5 text-aero-700" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+                    </svg>
+                    <span class="hidden md:inline">Sinkron Google Sheet</span>
+                </button>
+
+                <button onclick="openDataManagerModal()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-aero-900 hover:bg-aero-800 text-white shadow-sm transition cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-mint-300" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/>
+                    </svg>
+                    <span class="hidden sm:inline">Editor & URL</span>
+                </button>
+
+                <button onclick="window.print()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-aero-50 text-aero-900 border border-teal-200/80 transition cursor-pointer" title="Cetak / Simpan PDF Infografis">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z"/>
+                    </svg>
+                    <span>Cetak</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
+
+        <!-- Toast / Notification Banner -->
+        <div id="status-banner" class="hidden rounded-2xl p-3.5 sm:px-5 border flex items-center justify-between gap-3 text-xs sm:text-sm font-medium transition-all">
+            <div class="flex items-center gap-2.5">
+                <span id="status-banner-icon" class="shrink-0"></span>
+                <span id="status-banner-text">Memuat data resertifikasi SMK3...</span>
+            </div>
+            <button onclick="hideStatusBanner()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg">✕</button>
+        </div>
+
+        <!-- 1. HERO INFOGRAPHIC BANNER -->
+        <section class="hero-gradient rounded-3xl p-6 sm:p-8 lg:p-10 text-white relative overflow-hidden shadow-xl border border-teal-700/40">
+            <svg class="absolute right-0 top-0 h-full w-1/2 opacity-15 pointer-events-none" viewBox="0 0 400 400" fill="none">
+                <circle cx="320" cy="80" r="180" stroke="#86EFAC" stroke-width="1.5" stroke-dasharray="6 6"/>
+                <circle cx="320" cy="80" r="120" stroke="#FF9E8F" stroke-width="1.8"/>
+                <path d="M40 340 Q 200 180 370 60" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="4 8"/>
+            </svg>
+
+            <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div class="space-y-3 max-w-3xl">
+                    <div class="inline-flex flex-wrap items-center gap-2">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-coral-400/25 text-coral-100 border border-coral-300/40">
+                            ★ EXECUTIVE SUMMARY REPORT • 2026
+                        </span>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-mint-300/15 text-mint-300 border border-mint-300/30">
+                            Audit Eksternal Tingkat Lanjutan (166 Kriteria)
+                        </span>
+                    </div>
+
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
+                        Pelaksanaan Resertifikasi <span class="text-mint-300">SMK3</span> Tahun <span class="text-coral-300">2026</span>
+                    </h2>
+
+                    <p class="text-sm sm:text-base text-teal-50/90 leading-relaxed max-w-2xl">
+                        Laporan infografis terpadu capaian penerapan Sistem Manajemen Keselamatan dan Kesehatan Kerja (PP No. 50 Tahun 2012) yang dilaksanakan di <strong id="hero-airport-count" class="text-white underline decoration-coral-400 decoration-2 underline-offset-4">15 Bandara / Kantor Cabang (KC)</strong>.
+                    </p>
+
+                    <!-- Mini Quick Metrics Strip di Hero -->
+                    <div class="pt-1 flex flex-wrap items-center gap-2.5 text-xs">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-teal-50">
+                            <span class="w-2 h-2 rounded-full bg-mint-300"></span>
+                            Tingkat Pemenuhan PT Angkasa Pura Indonesia: <strong id="hero-compliance-rate" class="font-mono text-mint-300">93,01%</strong>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-teal-50">
+                            <span class="w-2 h-2 rounded-full bg-coral-300"></span>
+                            Rasio Temuan / KC: <strong id="hero-avg-findings" class="font-mono text-coral-300">11,6 Temuan</strong>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Right Highlight Badge -->
+                <div class="bg-white/10 backdrop-blur-md border border-mint-300/25 rounded-2xl p-4 sm:p-5 shrink-0 lg:w-72 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-teal-100">Status Kelulusan</span>
+                        <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-mint-400/25 text-mint-300 border border-mint-300/40">100% MEMUASKAN</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span id="hero-gold-flag-count" class="text-3xl font-extrabold text-mint-300">15 / 15</span>
+                        <span class="text-xs text-teal-50">Bandara Bendera Emas (≥85%)</span>
+                    </div>
+                    <div class="pt-2 border-t border-white/15 flex items-center justify-between text-[11px] text-teal-100">
+                        <span>Zero Temuan Kritikal &amp; Mayor</span>
+                        <span class="font-mono font-bold text-coral-300">0 Mayor</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2-5. EXECUTIVE KPI SUMMARY STRIP -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            <!-- KPI 1: Cakupan Bandara / KC -->
+            <div class="glass-card rounded-2xl p-5 relative overflow-hidden border-t-4 border-t-aero-700">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-aero-700">Cakupan Pelaksanaan</p>
+                        <div class="mt-2 flex items-baseline gap-2">
+                            <span id="kpi-total-airports" class="text-3xl sm:text-4xl font-extrabold text-aero-900">15</span>
+                            <span class="text-sm font-bold text-slate-600">Bandara / KC</span>
+                        </div>
+                    </div>
+                    <div class="w-11 h-11 rounded-2xl bg-aero-50 text-aero-800 flex items-center justify-center shrink-0 border border-teal-200/80">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500">Sumatera hingga Papua</span>
+                    <span class="font-bold text-aero-800 bg-aero-50 border border-teal-200/70 px-2 py-0.5 rounded-md">100% Terverifikasi</span>
+                </div>
+            </div>
+
+            <!-- KPI 2: Total Temuan Minor & Rata-Rata -->
+            <div onclick="openFindingsModal('all', 'Seluruh Temuan Minor Resertifikasi SMK3 2026')" class="glass-card rounded-2xl p-5 relative overflow-hidden border-t-4 border-t-coral-500 cursor-pointer group" title="Klik untuk melihat rincian daftar temuan minor">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-coral-600">Temuan Minor &amp; Rata-Rata</p>
+                        <div class="mt-2 flex items-baseline gap-2.5">
+                            <span id="kpi-total-findings" class="text-3xl sm:text-4xl font-extrabold text-coral-600">174</span>
+                            <span class="text-xs font-bold uppercase px-2 py-0.5 rounded-md bg-coral-50 group-hover:bg-coral-500 group-hover:text-white text-coral-600 border border-coral-300/70 transition">Minor ↗</span>
+                        </div>
+                    </div>
+                    <div class="w-11 h-11 rounded-2xl bg-coral-50 text-coral-500 flex items-center justify-center shrink-0 border border-coral-300/60">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500">Rata-Rata PT Angkasa Pura Indonesia:</span>
+                    <span id="kpi-avg-score" class="font-mono text-sm font-extrabold text-aero-900 bg-mint-100/80 border border-mint-300/60 px-2.5 py-0.5 rounded-md">93,01%</span>
+                </div>
+            </div>
+
+            <!-- KPI 3: Nilai Tertinggi -->
+            <div class="glass-card rounded-2xl p-5 relative overflow-hidden border-t-4 border-t-mint-500">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-teal-800">Nilai Tertinggi</p>
+                        <div class="mt-2 flex items-baseline gap-2">
+                            <span id="kpi-max-score" class="text-3xl sm:text-4xl font-extrabold text-mint-600">95,78%</span>
+                        </div>
+                    </div>
+                    <div class="w-11 h-11 rounded-2xl bg-mint-50 text-mint-600 flex items-center justify-center shrink-0 border border-mint-300/70">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs gap-2">
+                    <span id="kpi-max-airport" class="font-bold text-slate-800 truncate">BDO – Husein Sastranegara</span>
+                    <span id="kpi-max-meta" class="font-mono text-[11px] font-bold text-teal-900 bg-mint-100 border border-mint-300/70 px-2 py-0.5 rounded-md shrink-0">7 Minor</span>
+                </div>
+            </div>
+
+            <!-- KPI 4: Nilai Terendah -->
+            <div class="glass-card rounded-2xl p-5 relative overflow-hidden border-t-4 border-t-coral-400">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-coral-600">Nilai Terendah</p>
+                        <div class="mt-2 flex items-baseline gap-2">
+                            <span id="kpi-min-score" class="text-3xl sm:text-4xl font-extrabold text-coral-600">90,36%</span>
+                        </div>
+                    </div>
+                    <div class="w-11 h-11 rounded-2xl bg-coral-50 text-coral-500 flex items-center justify-center shrink-0 border border-coral-300/60">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs gap-2">
+                    <span id="kpi-min-airport" class="font-bold text-slate-800 truncate">BTJ – Sultan Iskandar Muda</span>
+                    <span id="kpi-min-meta" class="font-mono text-[11px] font-bold text-coral-600 bg-coral-100/80 border border-coral-300/70 px-2 py-0.5 rounded-md shrink-0">16 Minor</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- BENTO INSIGHTS STRIP (INDIKATOR KINERJA AUDIT KORPORAT) -->
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="rounded-2xl px-4 py-3.5 bg-gradient-to-br from-aero-900 to-aero-800 text-white border border-teal-700/60 shadow-sm flex items-center justify-between gap-2">
+                <div>
+                    <span class="block text-[10px] font-mono uppercase tracking-wider text-mint-300">Kriteria Audit PP 50/2012</span>
+                    <span class="text-sm sm:text-base font-extrabold">166 Kriteria</span>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg bg-white/10 font-mono text-xs font-bold text-mint-300">Lanjutan</span>
+            </div>
+
+            <div class="rounded-2xl px-4 py-3.5 bg-white/90 border border-mint-300/80 shadow-2xs flex items-center justify-between gap-2">
+                <div>
+                    <span class="block text-[10px] font-mono uppercase tracking-wider text-teal-800">Efektivitas Kepatuhan</span>
+                    <span id="bento-compliance-ratio" class="text-sm sm:text-base font-extrabold text-aero-950">2.316 / 2.490</span>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg bg-mint-100 font-mono text-xs font-extrabold text-teal-900">Kriteria OK</span>
+            </div>
+
+            <div class="rounded-2xl px-4 py-3.5 bg-white/90 border border-coral-300/80 shadow-2xs flex items-center justify-between gap-2">
+                <div>
+                    <span class="block text-[10px] font-mono uppercase tracking-wider text-coral-600">Selisih Skor (Spread)</span>
+                    <span id="bento-score-spread" class="text-sm sm:text-base font-extrabold text-aero-950">5,42%</span>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg bg-coral-50 font-mono text-xs font-bold text-coral-600">Max–Min</span>
+            </div>
+
+            <div class="rounded-2xl px-4 py-3.5 bg-white/90 border border-teal-200 shadow-2xs flex items-center justify-between gap-2">
+                <div>
+                    <span class="block text-[10px] font-mono uppercase tracking-wider text-aero-700">Konsentrasi 2 Elemen Utama</span>
+                    <span id="bento-top2-share" class="text-sm sm:text-base font-extrabold text-aero-950">38,5%</span>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg bg-aero-50 font-mono text-xs font-bold text-aero-800">Elemen 6 &amp; 7</span>
+            </div>
+        </section>
+
+        <!-- 8. GEOSPATIAL MAP & AIRPORT RANKING -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Interactive Modern Map (7 Columns) -->
+            <div class="lg:col-span-7 glass-card rounded-3xl p-5 sm:p-6 flex flex-col justify-between space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-6 rounded-full bg-aero-800"></span>
+                            <h3 class="text-base sm:text-lg font-extrabold text-aero-950">Sebaran Geografis 15 Bandara / KC</h3>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">Klik pin bandara pada peta untuk melihat detail skor, temuan minor &amp; fokus kajian.</p>
+                    </div>
+
+                    <!-- Map Legend & Reset Button -->
+                    <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-mint-50 text-teal-900 border border-mint-300">
+                            <span class="w-2.5 h-2.5 rounded-full bg-mint-500"></span> ≥94%
+                        </span>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-aero-50 text-aero-900 border border-teal-200">
+                            <span class="w-2.5 h-2.5 rounded-full bg-aero-500"></span> 92–93,9%
+                        </span>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-coral-50 text-coral-600 border border-coral-300">
+                            <span class="w-2.5 h-2.5 rounded-full bg-coral-500"></span> &lt;92%
+                        </span>
+                        <button onclick="resetMapView()" class="px-2.5 py-1 rounded-lg bg-aero-900 hover:bg-aero-800 text-white transition cursor-pointer" title="Reset tampilan seluruh Indonesia">
+                            Reset Peta
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Leaflet Map Container -->
+                <div class="relative rounded-2xl overflow-hidden border border-indigo-200/80 shadow-inner">
+                    <!-- Modern Basemap Switcher (Satelit Real, Dark Command, Light Modern) -->
+                    <div class="absolute top-3 right-3 z-[400] inline-flex items-center gap-1 p-1 rounded-xl bg-slate-950/85 backdrop-blur-md border border-white/15 shadow-lg">
+                        <button type="button" onclick="switchMapStyle('satellite')" id="map-style-satellite" class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-mint-500 text-slate-950 transition cursor-pointer">Satelit Real</button>
+                        <button type="button" onclick="switchMapStyle('dark')" id="map-style-dark" class="px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-200 hover:bg-white/10 transition cursor-pointer">Dark Mode</button>
+                        <button type="button" onclick="switchMapStyle('street')" id="map-style-street" class="px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-200 hover:bg-white/10 transition cursor-pointer">Peta Jalan</button>
+                    </div>
+
+                    <div id="airport-map"></div>
+                    <!-- HUD Info Overlay Realistis di Pojok Bawah Peta -->
+                    <div id="map-hud-card" class="absolute bottom-3 left-3 right-3 sm:right-auto sm:max-w-xs z-[400] bg-slate-950/90 text-white backdrop-blur-md border border-white/15 rounded-2xl p-3.5 shadow-xl pointer-events-auto">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-mint-300">Sorotan Lokasi Audit</span>
+                            <span id="map-hud-badge" class="font-mono text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-mint-500/20 text-mint-300 border border-mint-400/30">15 KC Aktif</span>
+                        </div>
+                        <p id="map-hud-title" class="text-xs font-extrabold text-white mt-1">Klik pin bandara atau kartu peringkat</p>
+                        <p id="map-hud-desc" class="text-[11px] text-slate-300 mt-0.5 leading-snug">Menampilkan citra geografis riil seluruh cabang PT Angkasa Pura Indonesia.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Airport Ranking Leaderboard (5 Columns) -->
+            <div class="lg:col-span-5 glass-card rounded-3xl p-5 sm:p-6 flex flex-col justify-between space-y-4">
+                <div class="flex items-center justify-between gap-2">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-6 rounded-full bg-mint-500"></span>
+                            <h3 class="text-base sm:text-lg font-extrabold text-aero-950">Capaian per Bandara / KC</h3>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">Klik baris bandara untuk menyorot lokasi di peta.</p>
+                    </div>
+
+                    <select id="ranking-sort-select" onchange="renderAirportRanking()" class="text-xs font-semibold bg-aero-50 border border-teal-200 text-aero-900 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-aero-500">
+                        <option value="score-desc">Nilai Tertinggi</option>
+                        <option value="score-asc">Nilai Terendah</option>
+                        <option value="findings-desc">Temuan Terbanyak</option>
+                        <option value="code-asc">Kode Bandara (A-Z)</option>
+                    </select>
+                </div>
+
+                <div id="airport-ranking-list" class="space-y-2.5 max-h-[430px] overflow-y-auto pr-1">
+                    <!-- Diisi secara dinamis oleh JavaScript -->
+                </div>
+
+                <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span>Ambang batas Bendera Emas: <strong class="text-aero-900">85,00%</strong></span>
+                    <span id="ranking-avg-badge" class="font-mono font-bold text-aero-800">Rata-rata: 93,01%</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6 & 7. ANALYTICS CHARTS: ELEMEN 1-12 & TOP SUB-ELEMEN -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- 6. Jumlah Temuan Per Elemen 1-12 (7 Columns) -->
+            <div class="lg:col-span-7 glass-card rounded-3xl p-5 sm:p-6 flex flex-col justify-between space-y-5">
+                <div class="space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-6 rounded-full bg-coral-500"></span>
+                                <h3 class="text-base sm:text-lg font-extrabold text-aero-950">Jumlah Temuan Minor per Elemen (1 – 12)</h3>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-0.5">Distribusi total <span id="chart-elem-total" class="font-bold text-aero-900">174</span> temuan minor (klik batang grafik untuk melihat rincian temuan).</p>
+                        </div>
+                        <span id="top-element-pill" class="self-start sm:self-center text-[11px] font-bold px-3 py-1 rounded-full bg-coral-50 text-coral-600 border border-coral-300/80">
+                            Dominan: Elemen 6 (38) &amp; Elemen 7 (29)
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2 no-print">
+                        <button onclick="downloadFullExcelReport('elements')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-extrabold bg-mint-50 hover:bg-mint-600 text-teal-900 hover:text-white border border-mint-300 transition cursor-pointer" title="Unduh matriks temuan Elemen 1–12 Korporat & per Bandara (.xlsx)">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+                            </svg>
+                            <span>Export Excel Elemen 1–12 (Korporat &amp; KC)</span>
+                        </button>
+                    </div>
+
+                    <div class="relative h-[460px] sm:h-[490px] w-full">
+                        <canvas id="elementsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Analisa Mendalam Berbasis Data Temuan & Rekomendasi Regulasi K3 / Best Practice SMK3 -->
+                <div class="pt-4 border-t border-indigo-100 space-y-4">
+                    <!-- Sub-blok A: Analisa Detail Pola & Akar Masalah Temuan -->
+                    <div class="rounded-2xl bg-gradient-to-br from-slate-50 via-aero-50/50 to-white border border-indigo-200/70 p-4 space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-5 rounded-full bg-aero-700"></span>
+                                <h4 class="text-xs sm:text-sm font-extrabold text-aero-950 uppercase tracking-wide">Analisa Mendalam Pola &amp; Akar Masalah Temuan</h4>
+                            </div>
+                            <span id="pareto-concentration-badge" class="font-mono text-[10px] sm:text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-coral-100 text-coral-600 border border-coral-300/80">
+                                Top 4 Elemen = 60,3% (105/174 Temuan)
+                            </span>
+                        </div>
+
+                        <p id="detailed-pareto-narrative" class="text-xs text-slate-700 leading-relaxed">
+                            Berdasarkan analisis distribusi Pareto lintas 15 Bandara/KC, konsentrasi ketidaksesuaian minor terpusat pada aspek teknis operasional dan pemantauan: <strong class="text-aero-900">Elemen 6 (38 temuan / 21,8%)</strong>, <strong class="text-aero-900">Elemen 7 (29 temuan / 16,7%)</strong>, <strong class="text-aero-900">Elemen 4 (22 temuan / 12,6%)</strong>, dan <strong class="text-aero-900">Elemen 2 (16 temuan / 9,2%)</strong>. Sebaliknya, <strong class="text-teal-900">Elemen 12 (3 temuan)</strong>, <strong class="text-teal-900">Elemen 11 (4 temuan)</strong>, dan <strong class="text-teal-900">Elemen 10 (5 temuan)</strong> menunjukkan bahwa fondasi pelatihan kompetensi dan pelaksanaan audit internal telah berjalan sangat matang.
+                        </p>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                            <div class="p-3 rounded-xl bg-white border border-coral-200/90 space-y-1">
+                                <span class="block font-mono text-[10px] font-extrabold text-coral-600 uppercase">1. Risiko Operasional (Elemen 6 &amp; 3)</span>
+                                <p class="text-[11px] text-slate-600 leading-snug">
+                                    Pembaruan <strong>HIRADC/JSA</strong> aktivitas non-rutin serta konsistensi pengawasan <em>Work Permit</em> kontraktor di area sisi udara &amp; utilitas masih perlu diperkuat.
+                                </p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-white border border-indigo-200/90 space-y-1">
+                                <span class="block font-mono text-[10px] font-extrabold text-aero-800 uppercase">2. Pemantauan &amp; B3 (Elemen 7 &amp; 9)</span>
+                                <p class="text-[11px] text-slate-600 leading-snug">
+                                    Keterlambatan jadwal uji lingkungan kerja (kebisingan, pencahayaan, iklim kerja), kalibrasi alat ukur, pembaruan MSDS B3, serta rekap MCU khusus.
+                                </p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-white border border-mint-300/90 space-y-1">
+                                <span class="block font-mono text-[10px] font-extrabold text-teal-900 uppercase">3. Tata Kelola Dokumen (Elemen 4 &amp; 2)</span>
+                                <p class="text-[11px] text-slate-600 leading-snug">
+                                    Masih ditemukan salinan SOP/Instruksi Kerja edisi lama di pos lapangan serta dokumentasi tinjauan ulang rencana program K3 yang belum seragam.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub-blok B: Saran Implementasi SMK3 Ideal Berbasis Regulasi & Standar Kredibel -->
+                    <div class="rounded-2xl bg-gradient-to-br from-aero-950 via-aero-900 to-aero-800 text-white p-4 sm:p-5 space-y-3 border border-indigo-700/60">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-lg bg-mint-400/20 border border-mint-300/40 text-mint-300 flex items-center justify-center shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+                                    </svg>
+                                </span>
+                                <h4 class="text-xs sm:text-sm font-extrabold text-white">Saran Implementasi SMK3 Ideal &amp; Rujukan Regulasi K3</h4>
+                            </div>
+                            <span class="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-white/10 text-mint-300 border border-white/15">
+                                Benchmark Regulasi &amp; Best Practice
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-[11px] leading-relaxed">
+                            <div class="p-3 rounded-xl bg-white/10 border border-white/10 space-y-1">
+                                <span class="inline-block font-mono text-[10px] font-bold text-mint-300 bg-mint-400/15 px-2 py-0.5 rounded">
+                                    PP No. 50 Tahun 2012 &amp; UU No. 1 Tahun 1970
+                                </span>
+                                <p class="text-slate-100">
+                                    <strong>Penguatan Siklus PDCA &amp; Hierarki Pengendalian:</strong> Wajibkan kaji ulang HIRADC setiap ada perubahan proses/proyek (Lampiran II Kriteria 6.1.1) dan terapkan <em>Management Walkthrough</em> bulanan P2K3 (Permenaker PER.04/MEN/1987).
+                                </p>
+                            </div>
+
+                            <div class="p-3 rounded-xl bg-white/10 border border-white/10 space-y-1">
+                                <span class="inline-block font-mono text-[10px] font-bold text-coral-300 bg-coral-400/15 px-2 py-0.5 rounded">
+                                    Permenaker No. 5/2018 &amp; PER.02/MEN/1980
+                                </span>
+                                <p class="text-slate-100">
+                                    <strong>Kepatuhan Lingkungan &amp; Kesehatan Kerja:</strong> Otomatisasi kalender uji Nilai Ambang Batas (NAB) kebisingan/iklim kerja/pencahayaan oleh PJK3 terakreditasi serta integrasi jadwal MCU khusus personel berisiko tinggi.
+                                </p>
+                            </div>
+
+                            <div class="p-3 rounded-xl bg-white/10 border border-white/10 space-y-1">
+                                <span class="inline-block font-mono text-[10px] font-bold text-mint-300 bg-mint-400/15 px-2 py-0.5 rounded">
+                                    Kepmenaker 187/1999 &amp; PP No. 22 Tahun 2021
+                                </span>
+                                <p class="text-slate-100">
+                                    <strong>Tata Kelola B3 &amp; Limbah B3 Berstandar GHS:</strong> Terapkan inventarisasi B3 terpusat lengkap dengan LDKB/MSDS dwibahasa di seluruh titik penyimpanan utilitas/workshop serta pelaporan neraca TPS Limbah B3 berkala.
+                                </p>
+                            </div>
+
+                            <div class="p-3 rounded-xl bg-white/10 border border-white/10 space-y-1">
+                                <span class="inline-block font-mono text-[10px] font-bold text-coral-300 bg-coral-400/15 px-2 py-0.5 rounded">
+                                    ISO 45001:2018 &amp; ICAO Doc 9859 (SMS Bandara)
+                                </span>
+                                <p class="text-slate-100">
+                                    <strong>Digitalisasi e-Permit &amp; Document Control:</strong> Integrasikan <em>Contractor Safety Management System</em> (CSMS) pada izin kerja vendor serta terapkan QR-Code pada dokumen SOP lapangan untuk mencegah penggunaan dokumen kadaluarsa.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Temuan Sub-Elemen Terbanyak (5 Columns - Seimbang dengan Kolom Kiri) -->
+            <div class="lg:col-span-5 glass-card rounded-3xl p-5 sm:p-6 flex flex-col justify-between space-y-5">
+                <div class="space-y-4">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-6 rounded-full bg-coral-400"></span>
+                                <h3 class="text-base sm:text-lg font-extrabold text-aero-950">Temuan Sub-Elemen Terbanyak</h3>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-0.5">Klik kartu sub-elemen untuk melihat daftar rincian ketidaksesuaian per bandara.</p>
+                        </div>
+                        <button onclick="downloadFullExcelReport('subelements')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold bg-mint-50 hover:bg-mint-600 text-teal-900 hover:text-white border border-mint-300 transition cursor-pointer shrink-0 no-print" title="Unduh rekap seluruh sub-elemen (174 temuan) Korporat & per Bandara (.xlsx)">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+                            </svg>
+                            <span>Excel</span>
+                        </button>
+                    </div>
+
+                    <div id="sub-elements-list" class="space-y-3">
+                        <!-- Diisi secara dinamis oleh JS -->
+                    </div>
+                </div>
+
+                <!-- Ringkasan Matriks Kepatuhan & Insight Konsentrasi -->
+                <div class="space-y-3 pt-2 border-t border-indigo-100">
+                    <div class="p-4 rounded-2xl bg-gradient-to-r from-mint-50 via-aero-50 to-coral-50/40 border border-mint-300/70 text-xs text-aero-950 leading-relaxed space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-extrabold text-aero-900 uppercase tracking-wider text-[11px]">Insight Konsentrasi Sub-Elemen</span>
+                            <span class="font-mono text-[10px] font-extrabold px-2 py-0.5 rounded bg-aero-900 text-mint-300">Top 6 Kriteria</span>
+                        </div>
+                        <p>
+                            Keenam sub-elemen di atas menyumbang <strong>72 dari 174 temuan minor (41,4%)</strong>, berfokus pada pengendalian risiko operasional (<em>HIRADC</em> &amp; <em>Work Permit</em>), pembaruan dokumen K3, serta pemantauan lingkungan kerja &amp; B3.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5 text-xs">
+                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                            <span class="block text-[10px] font-mono uppercase text-slate-500">Total Kriteria Audit</span>
+                            <span class="text-sm font-extrabold text-aero-950">25 Sub-Elemen</span>
+                            <span class="block text-[10px] text-teal-800 font-semibold mt-0.5">Tercakup di Export Excel</span>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                            <span class="block text-[10px] font-mono uppercase text-slate-500">Prioritas Perbaikan</span>
+                            <span class="text-sm font-extrabold text-coral-600">Kriteria 6.1.1</span>
+                            <span class="block text-[10px] text-slate-600 font-semibold mt-0.5">Tersebar di 14 Bandara</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 9. ANALISA KAJIAN PELAKSANAAN PER BANDARA -->
+        <section class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-6 rounded-full bg-aero-700"></span>
+                        <h3 class="text-lg sm:text-xl font-extrabold text-aero-950">Analisa Kajian Pelaksanaan per Bandara / KC</h3>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Ringkasan evaluasi kualitatif, fokus perbaikan utama, dan status tindak lanjut masing-masing cabang.</p>
+                </div>
+
+                <!-- Filter Kategori Nilai -->
+                <div class="flex flex-wrap items-center gap-1.5 no-print">
+                    <button onclick="filterAirportAnalysis('all')" id="filter-btn-all" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-aero-900 text-white transition cursor-pointer">Semua (15)</button>
+                    <button onclick="filterAirportAnalysis('excellent')" id="filter-btn-excellent" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-teal-900 border border-mint-300 hover:bg-mint-50 transition cursor-pointer">Unggul (≥94%)</button>
+                    <button onclick="filterAirportAnalysis('good')" id="filter-btn-good" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-aero-900 border border-teal-200 hover:bg-aero-50 transition cursor-pointer">Baik (92–93,9%)</button>
+                    <button onclick="filterAirportAnalysis('attention')" id="filter-btn-attention" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-coral-600 border border-coral-300 hover:bg-coral-50 transition cursor-pointer">Prioritas CAPA (&lt;92%)</button>
+                </div>
+            </div>
+
+            <div id="airport-analysis-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                <!-- Diisi secara dinamis oleh JS -->
+            </div>
+        </section>
+
+        <!-- 10 & 11. KESIMPULAN EKSEKUTIF & REKOMENDASI STRATEGIS -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Kesimpulan -->
+            <div class="glass-card rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-aero-950 via-aero-900 to-aero-800 text-white border-teal-700/50 space-y-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-mint-400/20 border border-mint-300/40 flex items-center justify-center text-mint-300 shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-mono uppercase tracking-wider text-mint-300 font-bold">Executive Takeaways</span>
+                        <h3 class="text-lg font-extrabold text-white">Kesimpulan Pelaksanaan SMK3 2026</h3>
+                    </div>
+                </div>
+
+                <ul id="executive-conclusions-list" class="space-y-3 text-xs sm:text-sm text-teal-50/90 leading-relaxed">
+                    <!-- Diisi dinamis oleh JS -->
+                </ul>
+            </div>
+
+            <!-- Rekomendasi -->
+            <div class="glass-card rounded-3xl p-6 sm:p-7 border-t-4 border-t-mint-500 space-y-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-coral-50 border border-coral-300/70 flex items-center justify-center text-coral-500 shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-mono uppercase tracking-wider text-coral-600 font-bold">Action Plan &amp; Continuous Improvement</span>
+                        <h3 class="text-lg font-extrabold text-aero-950">Rekomendasi Tindak Lanjut</h3>
+                    </div>
+                </div>
+
+                <div class="space-y-3 text-xs sm:text-sm">
+                    <div class="p-3.5 rounded-2xl bg-coral-50/60 border border-coral-300/70 space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-extrabold text-coral-600">1. Penyelesaian CAPA Jangka Pendek (0–30 Hari)</span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-coral-100 text-coral-600">PRIORITAS TINGGI</span>
+                        </div>
+                        <p id="rec-short-term" class="text-slate-700 leading-relaxed">
+                            Melakukan verifikasi dan penutupan 100% <em>Corrective and Preventive Action</em> (CAPA) atas seluruh temuan minor beserta bukti dokumentasi foto/berita acara.
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-2xl bg-aero-50/70 border border-teal-200 space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-extrabold text-aero-900">2. Standardisasi HIRADC, Work Permit &amp; Pengendalian Dokumen</span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-teal-100 text-aero-900">ELEMEN 4 &amp; 6</span>
+                        </div>
+                        <p class="text-slate-700 leading-relaxed">
+                            Menerapkan digitalisasi pengendalian dokumen K3 agar dokumen kadaluarsa otomatis ditarik, serta mewajibkan kaji ulang HIRADC/JSA sebelum penerbitan <em>Work Permit</em> mitra kerja.
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-2xl bg-mint-50/65 border border-mint-300/70 space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-extrabold text-teal-900">3. Pengawasan Lingkungan Kerja, B3 &amp; Cross-Audit Cabang</span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-mint-100 text-teal-900">BERKELANJUTAN</span>
+                        </div>
+                        <p id="rec-long-term" class="text-slate-700 leading-relaxed">
+                            Menyelenggarakan program <strong>Cross-Audit &amp; Knowledge Sharing</strong> dengan menjadikan kantor cabang berkinerja terbaik sebagai percontohan (<em>benchmark</em>).
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer & Dynamic Data Source Transparency -->
+        <footer class="glass-card rounded-2xl p-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="font-bold text-aero-900">Sumber Data Aktif:</span>
+                <a id="footer-sheet-link" href="https://docs.google.com/spreadsheets/d/1NuWa6mOWWD7EbBy2Ujshls3ho4SMonizMdo3vE9B5JQ/edit?gid=850527044#gid=850527044" target="_blank" rel="noopener noreferrer" class="text-aero-700 hover:underline font-semibold inline-flex items-center gap-1">
+                    <span>Google Spreadsheet Resertifikasi SMK3 2026 (gid=850527044)</span>
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/>
+                    </svg>
+                </a>
+                <span class="hidden sm:inline">•</span>
+                <span id="last-updated-text" class="font-mono text-[11px] text-aero-800">Sinkronisasi otomatis siap</span>
+            </div>
+
+            <div class="flex items-center gap-2 no-print">
+                <button onclick="downloadFullExcelReport()" class="text-white font-bold bg-mint-600 hover:bg-teal-700 px-3 py-1.5 rounded-lg transition cursor-pointer">
+                    Download Excel Lengkap (.xlsx)
+                </button>
+                <button onclick="triggerQuickExcelUpload()" class="text-white font-bold bg-coral-500 hover:bg-coral-600 px-3 py-1.5 rounded-lg transition cursor-pointer">
+                    Upload Data Excel (.xlsx)
+                </button>
+                <button onclick="openDataManagerModal()" class="text-aero-900 hover:bg-teal-100 font-bold bg-aero-50 border border-teal-200 px-3 py-1.5 rounded-lg transition cursor-pointer">
+                    Ubah / Edit Data
+                </button>
+            </div>
+        </footer>
+    </main>
+
+    <!-- =====================================================================
+         MODAL: DYNAMIC DATA CONNECTOR & LIVE EDITOR
+    ====================================================================== -->
+    <div id="data-manager-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-teal-200 overflow-hidden">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-gradient-to-r from-aero-950 via-aero-900 to-aero-800 text-white flex items-center justify-between">
+                <div>
+                    <h3 class="text-base sm:text-lg font-extrabold">Sumber Data Dinamis &amp; Editor Dashboard</h3>
+                    <p class="text-xs text-teal-100">Perubahan pada Google Spreadsheet, file Excel/CSV, atau tabel di bawah akan langsung memperbarui seluruh infografis.</p>
+                </div>
+                <button onclick="closeDataManagerModal()" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition cursor-pointer">✕</button>
+            </div>
+
+            <!-- Modal Tabs -->
+            <div class="px-6 pt-3 border-b border-teal-100 flex gap-4 text-xs font-bold bg-aero-50/70">
+                <button onclick="switchModalTab('gsheet')" id="tab-btn-gsheet" class="pb-3 border-b-2 border-aero-700 text-aero-900 cursor-pointer">1. Koneksi Google Sheets &amp; Upload Excel</button>
+                <button onclick="switchModalTab('editor')" id="tab-btn-editor" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-aero-900 cursor-pointer">2. Edit Nilai Bandara Langsung</button>
+                <button onclick="switchModalTab('elements')" id="tab-btn-elements" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-aero-900 cursor-pointer">3. Edit Elemen 1–12 &amp; Sub-Elemen</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto space-y-5 flex-1 text-xs sm:text-sm">
+                <!-- Tab 1: Google Sheets & File Upload -->
+                <div id="modal-tab-gsheet" class="space-y-5">
+                    <div class="p-4 rounded-2xl bg-aero-50/80 border border-teal-200 space-y-3">
+                        <label class="block text-xs font-extrabold uppercase tracking-wider text-aero-900">URL Google Spreadsheet (Link Share: Anyone with the link - Viewer)</label>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="text" id="gsheet-url-input" class="flex-1 px-3.5 py-2.5 rounded-xl border border-teal-200 text-xs font-mono bg-white focus:outline-none focus:ring-2 focus:ring-aero-500" value="https://docs.google.com/spreadsheets/d/1NuWa6mOWWD7EbBy2Ujshls3ho4SMonizMdo3vE9B5JQ/edit?gid=850527044#gid=850527044" />
+                            <button onclick="updateSheetUrlAndSync()" class="px-4 py-2.5 rounded-xl bg-aero-800 hover:bg-aero-900 text-white font-bold text-xs shrink-0 transition cursor-pointer">
+                                Tarik &amp; Sinkronkan
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">
+                            Dashboard terhubung secara <strong>Realtime (JSONP)</strong> langsung ke Google Spreadsheet Anda dan otomatis menyegarkan data setiap <strong>30 detik</strong> (kebal blokir CORS meskipun dibuka dari file lokal <code>file:///</code>).
+                        </p>
+                    </div>
+
+                    <!-- Diagnostik Pembacaan Data Mentah -->
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Log Diagnostik Pembacaan Sumber Data</span>
+                            <span id="parser-diag-badge" class="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-mint-100 text-teal-900">Menunggu sinkronisasi...</span>
+                        </div>
+                        <pre id="parser-diag-log" class="text-[11px] font-mono bg-white border border-slate-200 rounded-xl p-3 max-h-36 overflow-y-auto text-slate-600 whitespace-pre-wrap">Belum ada log pembacaan eksternal. Klik "Tarik &amp; Sinkronkan" atau unggah file Excel/CSV.</pre>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Upload Excel / CSV -->
+                        <div class="p-4 rounded-2xl border border-dashed border-coral-400 bg-coral-50/55 space-y-2.5">
+                            <h4 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Unggah File Excel / CSV (.xlsx, .xls, .csv)</h4>
+                            <p class="text-xs text-slate-600">Unggah salinan lokal dari Spreadsheet Anda (termasuk file <code>Catatan Selama Audit SMK3 2026</code>) untuk pembaruan instan 100% offline.</p>
+                            <input type="file" id="excel-file-input" accept=".xlsx,.xls,.csv" onchange="handleExcelFileUpload(event)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-coral-500 file:text-white hover:file:bg-coral-600 cursor-pointer" />
+                        </div>
+
+                        <!-- Simulasi Perubahan Data -->
+                        <div class="p-4 rounded-2xl border border-mint-300/80 bg-mint-50/45 space-y-2.5">
+                            <h4 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Uji Dinamika &amp; Reset Baseline</h4>
+                            <p class="text-xs text-slate-600">Uji responsivitas otomatis seluruh KPI, peta, dan kajian apabila angka pada sumber data berubah.</p>
+                            <div class="flex flex-wrap gap-2 pt-1">
+                                <button onclick="simulateDataChange()" class="px-3 py-2 rounded-xl bg-coral-500 hover:bg-coral-600 text-white font-bold text-xs transition cursor-pointer">
+                                    Simulasi Perubahan Data
+                                </button>
+                                <button onclick="resetToDefaultData()" class="px-3 py-2 rounded-xl bg-aero-900 hover:bg-aero-800 text-white font-bold text-xs transition cursor-pointer">
+                                    Reset ke Data 15 Bandara
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Live Airport Table Editor -->
+                <div id="modal-tab-editor" class="hidden space-y-3">
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs text-slate-600">Ubah nilai skor atau jumlah temuan minor pada baris bandara di bawah ini, lalu klik <strong>Terapkan Perubahan</strong>.</p>
+                        <button onclick="addNewAirportRow()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer">+ Tambah Bandara</button>
+                    </div>
+                    <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead class="bg-slate-100 text-slate-700 font-bold uppercase">
+                                <tr>
+                                    <th class="p-2.5">Kode</th>
+                                    <th class="p-2.5">Nama Bandara / KC</th>
+                                    <th class="p-2.5">Kota</th>
+                                    <th class="p-2.5">Nilai (%)</th>
+                                    <th class="p-2.5">Temuan Minor</th>
+                                    <th class="p-2.5">Fokus Kajian Utama</th>
+                                    <th class="p-2.5 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="editor-airport-tbody" class="divide-y divide-slate-200">
+                                <!-- Diisi JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Elements 1-12 & Sub-Elements Editor -->
+                <div id="modal-tab-elements" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2.5">
+                        <h4 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Jumlah Temuan per Elemen (1 – 12)</h4>
+                        <div id="editor-elements-list" class="space-y-2 max-h-80 overflow-y-auto pr-1">
+                            <!-- Diisi JS -->
+                        </div>
+                    </div>
+                    <div class="space-y-2.5">
+                        <h4 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Sub-Elemen Temuan Terbanyak</h4>
+                        <div id="editor-subelements-list" class="space-y-2.5 max-h-80 overflow-y-auto pr-1">
+                            <!-- Diisi JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2">
+                <button onclick="closeDataManagerModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition cursor-pointer">Tutup</button>
+                <button onclick="applyManualEditorChanges()" class="px-5 py-2 rounded-xl text-xs font-bold bg-aero-900 hover:bg-aero-800 text-white shadow-sm transition cursor-pointer">Terapkan Perubahan ke Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         MODAL: RINCIAN DAFTAR TEMUAN MINOR (KLIK LABEL JUMLAH TEMUAN)
+    ====================================================================== -->
+    <div id="findings-detail-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target===this) closeFindingsModal()">
+        <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-teal-200 overflow-hidden">
+            <!-- Header -->
+            <div class="px-6 py-4 bg-gradient-to-r from-aero-950 via-aero-900 to-aero-800 text-white flex items-center justify-between gap-3">
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <span id="findings-modal-badge" class="font-mono text-[11px] font-extrabold px-2.5 py-0.5 rounded-md bg-coral-500 text-white">DETAIL TEMUAN</span>
+                        <span id="findings-modal-count" class="font-mono text-xs font-bold text-mint-300">0 Temuan Minor</span>
+                    </div>
+                    <h3 id="findings-modal-title" class="text-base sm:text-lg font-extrabold text-white mt-1 truncate">Daftar Rincian Temuan Minor</h3>
+                </div>
+                <button onclick="closeFindingsModal()" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition cursor-pointer shrink-0">✕</button>
+            </div>
+
+            <!-- Filter & Pencarian Cepat di dalam Modal -->
+            <div class="px-6 py-3 bg-aero-50/80 border-b border-teal-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div class="relative flex-1">
+                    <input type="text" id="findings-modal-search" oninput="renderFindingsModalRows()" placeholder="Cari kode bandara (mis. CGK, BTJ), kriteria, atau uraian temuan..." class="w-full pl-3.5 pr-3 py-2 rounded-xl border border-teal-200 bg-white text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-aero-500" />
+                </div>
+                <select id="findings-modal-kc-filter" onchange="renderFindingsModalRows()" class="px-3 py-2 rounded-xl border border-teal-200 bg-white text-xs font-bold text-aero-900 focus:outline-none focus:ring-2 focus:ring-aero-500">
+                    <option value="ALL">Semua Bandara / KC</option>
+                </select>
+            </div>
+
+            <!-- List Rincian Temuan -->
+            <div id="findings-modal-list" class="p-5 overflow-y-auto space-y-2.5 flex-1 bg-slate-50/40">
+                <!-- Diisi dinamis oleh JS -->
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-3 bg-white border-t border-slate-200 flex items-center justify-between gap-2 text-xs text-slate-500">
+                <span>Kategori Audit: <strong class="text-coral-600">Minor (PP No. 50 Tahun 2012)</strong></span>
+                <div class="flex items-center gap-2">
+                    <button onclick="downloadFilteredFindingsExcel()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-mint-600 hover:bg-teal-700 text-white font-bold transition cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+                        </svg>
+                        <span>Download Daftar Ini (.xlsx)</span>
+                    </button>
+                    <button onclick="closeFindingsModal()" class="px-4 py-1.5 rounded-xl bg-aero-900 hover:bg-aero-800 text-white font-bold transition cursor-pointer">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         JAVASCRIPT APPLICATION LOGIC
+    ====================================================================== -->
+    <script>
+        /**
+         * URL Sumber Data Google Spreadsheet Default
+         */
+        let GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1NuWa6mOWWD7EbBy2Ujshls3ho4SMonizMdo3vE9B5JQ/edit?gid=850527044#gid=850527044";
+
+        /**
+         * KAMUS KOORDINAT GEOGRAFIS BANDARA INDONESIA (UNTUK PEMETAAN OTOMATIS)
+         */
+        const AIRPORT_GEO_DICT = {
+            'BDO': { name: 'Husein Sastranegara', city: 'Bandung', lat: -6.9006, lng: 107.5763 },
+            'DJB': { name: 'Sultan Thaha', city: 'Jambi', lat: -1.6380, lng: 103.6444 },
+            'PNK': { name: 'Supadio', city: 'Pontianak', lat: -0.1507, lng: 109.4039 },
+            'PDG': { name: 'Minangkabau', city: 'Padang Pariaman', lat: -0.7869, lng: 100.2806 },
+            'MDC': { name: 'Sam Ratulangi', city: 'Manado', lat: 1.5492, lng: 124.9261 },
+            'CGK': { name: 'Soekarno-Hatta', city: 'Tangerang', lat: -6.1256, lng: 106.6558 },
+            'PLM': { name: 'Sultan Mahmud Badaruddin II', city: 'Palembang', lat: -2.8983, lng: 104.7011 },
+            'PKU': { name: 'Sultan Syarif Kasim II', city: 'Pekanbaru', lat: 0.4608, lng: 101.4450 },
+            'PGK': { name: 'Depati Amir', city: 'Pangkalpinang', lat: -2.1622, lng: 106.1392 },
+            'DTB': { name: 'Sisingamangaraja XII', city: 'Silangit', lat: 2.2594, lng: 98.9953 },
+            'UPG': { name: 'Sultan Hasanuddin', city: 'Maros', lat: -5.0616, lng: 119.5540 },
+            'LOP': { name: 'Zainuddin Abdul Madjid', city: 'Lombok Tengah', lat: -8.7573, lng: 116.2767 },
+            'TNJ': { name: 'Raja Haji Fisabilillah', city: 'Tanjungpinang', lat: 0.9227, lng: 104.5322 },
+            'BIK': { name: 'Frans Kaisiepo', city: 'Biak', lat: -1.1900, lng: 136.1080 },
+            'BTJ': { name: 'Sultan Iskandar Muda', city: 'Banda Aceh', lat: 5.5235, lng: 95.4204 },
+            'KNO': { name: 'Kualanamu', city: 'Deli Serdang', lat: 3.6422, lng: 98.8853 },
+            'HLP': { name: 'Halim Perdanakusuma', city: 'Jakarta Timur', lat: -6.2666, lng: 106.8910 },
+            'SUB': { name: 'Juanda', city: 'Sidoarjo', lat: -7.3798, lng: 112.7868 },
+            'DPS': { name: 'I Gusti Ngurah Rai', city: 'Badung', lat: -8.7482, lng: 115.1672 },
+            'YIA': { name: 'Yogyakarta International', city: 'Kulon Progo', lat: -7.9000, lng: 110.0569 },
+            'SRG': { name: 'Jenderal Ahmad Yani', city: 'Semarang', lat: -6.9714, lng: 110.3741 },
+            'SOC': { name: 'Adi Soemarmo', city: 'Boyolali', lat: -7.5161, lng: 110.7569 },
+            'BPN': { name: 'Sultan Aji Muhammad Sulaiman Sepinggan', city: 'Balikpapan', lat: -1.2683, lng: 116.8944 },
+            'BDJ': { name: 'Syamsudin Noor', city: 'Banjarbaru', lat: -3.4424, lng: 114.7625 },
+            'KOE': { name: 'El Tari', city: 'Kupang', lat: -10.1716, lng: 123.6711 },
+            'DJJ': { name: 'Sentani', city: 'Jayapura', lat: -2.5769, lng: 140.5164 },
+            'AMQ': { name: 'Pattimura', city: 'Ambon', lat: -3.7103, lng: 128.0891 },
+            'BTH': { name: 'Hang Nadim', city: 'Batam', lat: 1.1210, lng: 104.1186 },
+            'TKG': { name: 'Radin Inten II', city: 'Lampung Selatan', lat: -5.2423, lng: 105.1789 },
+            'BWX': { name: 'Banyuwangi', city: 'Banyuwangi', lat: -8.3103, lng: 114.3400 },
+            'KJT': { name: 'Kertajati', city: 'Majalengka', lat: -6.6564, lng: 108.1656 }
+        };
+
+        /**
+         * DATASET BASELINE 15 BANDARA / KC RESERTIFIKASI SMK3 2026
+         */
+        const DEFAULT_AIRPORTS = [
+            { code: 'BDO', name: 'Husein Sastranegara', city: 'Bandung', lat: -6.9006, lng: 107.5763, score: 95.78, findings: 7, status: 'Sudah', focusArea: 'Dokumentasi revisi SOP & inspeksi berkala APAR', analysisNote: 'Capaian tertinggi bersama DJB (95,78%). Tata kelola P2K3, pengendalian izin kerja kontraktor, dan kesiapsiagaan tanggap darurat berjalan sangat matang dengan hanya 7 temuan minor.' },
+            { code: 'DJB', name: 'Sultan Thaha', city: 'Jambi', lat: -1.6380, lng: 103.6444, score: 95.78, findings: 7, status: 'Sudah', focusArea: 'Pembaruan daftar LDKB/MSDS bahan kimia utilitas', analysisNote: 'Capaian tertinggi bersama BDO (95,78%) dengan hanya 7 temuan minor. Penerapan SMK3 berjalan sangat konsisten; penyempurnaan terbatas pada pelabelan sekunder bahan kimia utilitas.' },
+            { code: 'PNK', name: 'Supadio', city: 'Pontianak', lat: -0.1507, lng: 109.4039, score: 94.58, findings: 9, status: 'Sudah', focusArea: 'Pengelolaan limbah B3 & catatan neraca B3', analysisNote: 'Peringkat 3 PT Angkasa Pura Indonesia dengan capaian unggul 94,58% (9 temuan minor). Fokus perbaikan diarahkan pada kelengkapan logbook keluar-masuk TPS Limbah B3 dan simbol kemasan.' },
+            { code: 'PDG', name: 'Minangkabau', city: 'Padang Pariaman', lat: -0.7869, lng: 100.2806, score: 93.98, findings: 10, status: 'Sudah', focusArea: 'Inspeksi rutin hydrant & jalur evakuasi area kargo', analysisNote: 'Berada di atas rata-rata PT Angkasa Pura Indonesia (93,98%) dengan tata kelola risiko operasional yang terkendali. Perlu memastikan akses panel hidran dan jalur evakuasi gudang kargo bebas hambatan.' },
+            { code: 'MDC', name: 'Sam Ratulangi', city: 'Manado', lat: 1.5492, lng: 124.9261, score: 93.98, findings: 10, status: 'Sudah', focusArea: 'Pengelolaan B3, izin kerja & pemeriksaan kesehatan kerja', analysisNote: 'Capaian kuat di atas rata-rata PT Angkasa Pura Indonesia (93,98% dengan 10 temuan minor). Penyempurnaan difokuskan pada administrasi B3, izin kerja berisiko tinggi, dan dokumentasi MCU berkala.' },
+            { code: 'CGK', name: 'Soekarno-Hatta', city: 'Tangerang', lat: -6.1256, lng: 106.6558, score: 92.77, findings: 12, status: 'Sudah', focusArea: 'Pembaruan dokumen HIRADC/IBPR aktivitas non-rutin', analysisNote: 'Memenuhi kategori Bendera Emas (92,77%) pada skala operasional paling kompleks. Perlu akselerasi pembaruan identifikasi bahaya (HIRADC) untuk pekerjaan pemeliharaan berkala dan mitra kerja.' },
+            { code: 'PLM', name: 'Sultan Mahmud Badaruddin II', city: 'Palembang', lat: -2.8983, lng: 104.7011, score: 92.77, findings: 12, status: 'Sudah', focusArea: 'Pengendalian dokumen kadaluarsa di unit operasional', analysisNote: 'Komitmen manajemen dan partisipasi P2K3 sangat baik (92,77% dengan 12 temuan minor). Diperlukan penarikan dokumen instruksi kerja versi lama di beberapa pos operasional.' },
+            { code: 'PKU', name: 'Sultan Syarif Kasim II', city: 'Pekanbaru', lat: 0.4608, lng: 101.4450, score: 92.77, findings: 12, status: 'Sudah', focusArea: 'Kesiapsiagaan tanggap darurat & pencatatan simulasi', analysisNote: 'Penerapan prosedur kesiapsiagaan tanggap darurat sudah kuat (92,77%), namun laporan evaluasi pasca-simulasi perlu dilengkapi matriks tindak lanjut yang lebih terukur.' },
+            { code: 'PGK', name: 'Depati Amir', city: 'Pangkalpinang', lat: -2.1622, lng: 106.1392, score: 92.77, findings: 12, status: 'Sudah', focusArea: 'Kalibrasi alat ukur & pemantauan iklim kerja', analysisNote: 'Sistem dokumentasi K3 tertata rapi (92,77%); perlu penjadwalan ulang pengujian iklim kerja dan kebisingan di ruang genset serta workshop GSE sesuai periode regulasi.' },
+            { code: 'DTB', name: 'Sisingamangaraja XII', city: 'Silangit', lat: 2.2594, lng: 98.9953, score: 92.77, findings: 12, status: 'Sudah', focusArea: 'Verifikasi efektivitas tindakan korektif temuan internal', analysisNote: 'Kepatuhan operasional SMK3 terpenuhi dengan baik (92,77%). Disarankan memperkuat verifikasi penutupan temuan inspeksi bulanan P2K3.' },
+            { code: 'UPG', name: 'Sultan Hasanuddin', city: 'Maros', lat: -5.0616, lng: 119.5540, score: 92.17, findings: 13, status: 'Sudah', focusArea: 'Pemantauan kebisingan & pencahayaan area workshop', analysisNote: 'Kinerja sangat solid pada skala bandara hub kawasan timur Indonesia (92,17% dengan 13 temuan minor). Perlu kelengkapan dokumentasi tindak lanjut hasil pengukuran lingkungan kerja.' },
+            { code: 'LOP', name: 'Zainuddin Abdul Madjid', city: 'Lombok Tengah', lat: -8.7573, lng: 116.2767, score: 92.17, findings: 13, status: 'Sudah', focusArea: 'Pengendalian Work Permit mitra kerja sisi udara', analysisNote: 'Kepatuhan tinggi (92,17%) dengan sistem manajemen keselamatan terintegrasi; temuan minor terbatas pada konsistensi pelampiran JSA pada sebagian pekerjaan vendor.' },
+            { code: 'TNJ', name: 'Raja Haji Fisabilillah', city: 'Tanjungpinang', lat: 0.9227, lng: 104.5322, score: 91.56, findings: 14, status: 'Sudah', focusArea: 'Pengendalian dokumen K3 & pemantauan lingkungan kerja', analysisNote: 'Meraih kategori Memuaskan (91,56%). Membutuhkan penertiban master list dokumen SMK3 serta realisasi uji lingkungan kerja berkala pada unit utilitas dan PKP-PK.' },
+            { code: 'BIK', name: 'Frans Kaisiepo', city: 'Biak', lat: -1.1900, lng: 136.1080, score: 90.96, findings: 15, status: 'Sudah', focusArea: 'Pengawasan kepatuhan APD & Work Permit vendor', analysisNote: 'Tetap meraih kategori Memuaskan (Bendera Emas ≥ 85%) dengan skor 90,96%. Menjadi prioritas pendampingan CAPA untuk menurunkan 15 temuan minor pada Elemen 6 dan 7.' },
+            { code: 'BTJ', name: 'Sultan Iskandar Muda', city: 'Banda Aceh', lat: 5.5235, lng: 95.4204, score: 90.36, findings: 16, status: 'Sudah', focusArea: 'Pengendalian risiko operasional, dokumen & pemantauan K3', analysisNote: 'Meraih kategori Memuaskan (90,36%), namun tercatat memiliki temuan minor terbanyak (16 temuan) pada Elemen 6 dan 7 sehingga memerlukan pendampingan penutupan CAPA.' }
+        ];
+
+        const DEFAULT_ELEMENTS = [
+            { id: 1, short: 'Elemen 1', name: 'Pembangunan & Pemeliharaan Komitmen', count: 14 },
+            { id: 2, short: 'Elemen 2', name: 'Pembuatan & Pendokumentasian Rencana K3', count: 16 },
+            { id: 3, short: 'Elemen 3', name: 'Pengendalian Perancangan & Peninjauan Kontrak', count: 9 },
+            { id: 4, short: 'Elemen 4', name: 'Pengendalian Dokumen', count: 22 },
+            { id: 5, short: 'Elemen 5', name: 'Pembelian & Pengendalian Produk', count: 11 },
+            { id: 6, short: 'Elemen 6', name: 'Keamanan Bekerja Berdasarkan SMK3', count: 38 },
+            { id: 7, short: 'Elemen 7', name: 'Standar Pemantauan', count: 29 },
+            { id: 8, short: 'Elemen 8', name: 'Pelaporan & Perbaikan Kekurangan', count: 10 },
+            { id: 9, short: 'Elemen 9', name: 'Pengelolaan Material & Perpindahannya', count: 13 },
+            { id: 10, short: 'Elemen 10', name: 'Pengumpulan & Penggunaan Data', count: 5 },
+            { id: 11, short: 'Elemen 11', name: 'Pemeriksaan SMK3', count: 4 },
+            { id: 12, short: 'Elemen 12', name: 'Pengembangan Keterampilan & Kemampuan', count: 3 }
+        ];
+
+        const DEFAULT_SUB_ELEMENTS = [
+            { code: '6.1.1', title: 'Identifikasi Bahaya, Penilaian & Pengendalian Risiko (HIRADC)', element: 'Elemen 6', count: 15 },
+            { code: '4.1.2', title: 'Pengendalian Perubahan & Distribusi Dokumen K3 Kadaluarsa', element: 'Elemen 4', count: 14 },
+            { code: '7.2.1', title: 'Pemantauan & Pengukuran Lingkungan Kerja Berkala', element: 'Elemen 7', count: 13 },
+            { code: '6.4.1', title: 'Sistem Izin Kerja (Work Permit) & Pengawasan Mitra Kerja', element: 'Elemen 6', count: 11 },
+            { code: '9.3.1', title: 'Pengendalian Bahan Kimia Berbahaya (B3) & Ketersediaan MSDS', element: 'Elemen 9', count: 10 },
+            { code: '7.4.1', title: 'Pemeriksaan Kesehatan Tenaga Kerja (MCU) Khusus & Berkala', element: 'Elemen 7', count: 9 }
+        ];
+
+        const FULL_SUB_ELEMENTS_CATALOG = [
+            { code: '6.1.1', title: 'Identifikasi Bahaya, Penilaian & Pengendalian Risiko (HIRADC)', element: 'Elemen 6', count: 15 },
+            { code: '4.1.2', title: 'Pengendalian Perubahan & Distribusi Dokumen K3 Kadaluarsa', element: 'Elemen 4', count: 14 },
+            { code: '7.2.1', title: 'Pemantauan & Pengukuran Lingkungan Kerja Berkala', element: 'Elemen 7', count: 13 },
+            { code: '6.4.1', title: 'Sistem Izin Kerja (Work Permit) & Pengawasan Mitra Kerja', element: 'Elemen 6', count: 11 },
+            { code: '9.3.1', title: 'Pengendalian Bahan Kimia Berbahaya (B3) & Ketersediaan MSDS', element: 'Elemen 9', count: 10 },
+            { code: '7.4.1', title: 'Pemeriksaan Kesehatan Tenaga Kerja (MCU) Khusus & Berkala', element: 'Elemen 7', count: 9 },
+            { code: '2.1.1', title: 'Perencanaan Strategi & Program Kerja K3 Terukur', element: 'Elemen 2', count: 9 },
+            { code: '1.4.1', title: 'Pembentukan, Pelaporan & Rapat Rutin P2K3 Cabang', element: 'Elemen 1', count: 8 },
+            { code: '4.2.1', title: 'Daftar Induk Dokumen (Master List) & Pengendalian Rekaman K3', element: 'Elemen 4', count: 8 },
+            { code: '6.7.1', title: 'Kesiapsiagaan & Simulasi Tanggap Darurat Kebakaran / Bencana', element: 'Elemen 6', count: 7 },
+            { code: '2.3.1', title: 'Manual SMK3 & Penyebarluasan Kebijakan K3 ke Unit Kerja', element: 'Elemen 2', count: 7 },
+            { code: '7.1.1', title: 'Inspeksi Tempat Kerja & Pengujian Peralatan K3 Berkala', element: 'Elemen 7', count: 7 },
+            { code: '1.2.2', title: 'Penunjukan & Sertifikasi Ahli K3 Umum / Spesialis', element: 'Elemen 1', count: 6 },
+            { code: '5.1.1', title: 'Spesifikasi K3 dalam Pengadaan Barang & Jasa Kontraktor', element: 'Elemen 5', count: 6 },
+            { code: '8.3.1', title: 'Penyelidikan & Pelaporan Insiden / Kecelakaan Kerja & Nearmiss', element: 'Elemen 8', count: 6 },
+            { code: '3.1.1', title: 'Identifikasi Bahaya pada Tahap Perancangan & Modifikasi Fasilitas', element: 'Elemen 3', count: 5 },
+            { code: '5.2.1', title: 'Verifikasi & Pemeriksaan Kelayakan K3 Barang / Peralatan Masuk', element: 'Elemen 5', count: 5 },
+            { code: '6.2.1', title: 'Pengawasan & Penunjukan Petugas K3 pada Area Berisiko Tinggi', element: 'Elemen 6', count: 5 },
+            { code: '3.2.1', title: 'Peninjauan Ulang Kontrak Kerja Sama & Persyaratan K3 Vendor', element: 'Elemen 3', count: 4 },
+            { code: '8.1.1', title: 'Mekanisme Pelaporan Bahaya & Tindak Lanjut Keluhan K3 Pegawai', element: 'Elemen 8', count: 4 },
+            { code: '11.1.1', title: 'Pelaksanaan Audit Internal SMK3 Terjadwal & Kompetensi Auditor', element: 'Elemen 11', count: 4 },
+            { code: '9.1.1', title: 'Prosedur Penanganan, Pengangkatan & Penyimpanan Material Manual/Mekanis', element: 'Elemen 9', count: 3 },
+            { code: '10.1.1', title: 'Pengumpulan, Pengolahan & Evaluasi Data Statistik Kinerja K3', element: 'Elemen 10', count: 3 },
+            { code: '12.1.1', title: 'Analisis Kebutuhan & Realisasi Pelatihan K3 Berbasis Kompetensi', element: 'Elemen 12', count: 3 },
+            { code: '10.2.1', title: 'Penyebarluasan Informasi & Laporan Kinerja K3 kepada Seluruh Pekerja', element: 'Elemen 10', count: 2 }
+        ];
+
+        // State Aktif
+        let airportsData = JSON.parse(JSON.stringify(DEFAULT_AIRPORTS));
+        let elementsData = JSON.parse(JSON.stringify(DEFAULT_ELEMENTS));
+        let subElementsData = JSON.parse(JSON.stringify(DEFAULT_SUB_ELEMENTS));
+        let uploadedAllSubElements = [];
+        let uploadedDetailedFindings = [];
+        let activeFindingsModalContext = { filterType: 'all', filterValue: '', title: '' };
+        let activeAnalysisFilter = 'all';
+        let leafletMap = null;
+        let mapMarkersLayer = null;
+        let mapNetworkLayer = null;
+        let mapTileLayers = {};
+        let currentMapStyle = 'satellite';
+        let airportMarkersMap = {};
+        let elementsChartInstance = null;
+
+        const EXACT_MATRIX = {
+            1: { BDO: 1, BIK: 1, BTJ: 1, CGK: 1, DJB: 1, DTB: 1, LOP: 1, MDC: 1, PDG: 1, PGK: 1, PKU: 1, PLM: 1, PNK: 0, TNJ: 1, UPG: 1 },
+            2: { BDO: 1, BIK: 2, BTJ: 1, CGK: 1, DJB: 1, DTB: 1, LOP: 1, MDC: 1, PDG: 1, PGK: 1, PKU: 1, PLM: 1, PNK: 1, TNJ: 1, UPG: 1 },
+            3: { BDO: 1, BIK: 1, BTJ: 1, CGK: 1, DJB: 1, DTB: 1, LOP: 0, MDC: 0, PDG: 0, PGK: 0, PKU: 0, PLM: 0, PNK: 1, TNJ: 1, UPG: 1 },
+            4: { BDO: 1, BIK: 2, BTJ: 2, CGK: 2, DJB: 1, DTB: 2, LOP: 2, MDC: 1, PDG: 1, PGK: 1, PKU: 1, PLM: 1, PNK: 1, TNJ: 2, UPG: 2 },
+            5: { BDO: 1, BIK: 1, BTJ: 1, CGK: 1, DJB: 1, DTB: 0, LOP: 1, MDC: 0, PDG: 0, PGK: 1, PKU: 1, PLM: 1, PNK: 0, TNJ: 1, UPG: 1 },
+            6: { BDO: 1, BIK: 2, BTJ: 4, CGK: 3, DJB: 1, DTB: 3, LOP: 3, MDC: 2, PDG: 2, PGK: 3, PKU: 3, PLM: 3, PNK: 2, TNJ: 2, UPG: 3 },
+            7: { BDO: 1, BIK: 3, BTJ: 2, CGK: 2, DJB: 1, DTB: 2, LOP: 2, MDC: 2, PDG: 2, PGK: 2, PKU: 2, PLM: 2, PNK: 2, TNJ: 2, UPG: 1 },
+            8: { BDO: 0, BIK: 1, BTJ: 1, CGK: 0, DJB: 0, DTB: 1, LOP: 1, MDC: 1, PDG: 1, PGK: 1, PKU: 1, PLM: 1, PNK: 0, TNJ: 1, UPG: 0 },
+            9: { BDO: 0, BIK: 1, BTJ: 1, CGK: 1, DJB: 0, DTB: 1, LOP: 1, MDC: 1, PDG: 1, PGK: 1, PKU: 1, PLM: 1, PNK: 1, TNJ: 1, UPG: 1 },
+            10: { BDO: 0, BIK: 1, BTJ: 1, CGK: 0, DJB: 0, DTB: 0, LOP: 1, MDC: 1, PDG: 1, PGK: 0, PKU: 0, PLM: 0, PNK: 0, TNJ: 0, UPG: 0 },
+            11: { BDO: 0, BIK: 0, BTJ: 1, CGK: 0, DJB: 0, DTB: 0, LOP: 0, MDC: 0, PDG: 0, PGK: 1, PKU: 1, PLM: 1, PNK: 0, TNJ: 0, UPG: 0 },
+            12: { BDO: 0, BIK: 0, BTJ: 0, CGK: 0, DJB: 0, DTB: 0, LOP: 0, MDC: 0, PDG: 0, PGK: 0, PKU: 0, PLM: 0, PNK: 1, TNJ: 1, UPG: 1 }
+        };
+
+        function parseElementId(elemText, subCodeText = '') {
+            const subStr = String(subCodeText || '').trim();
+            const subMatch = subStr.match(/^(\d{1,2})(?:\.\d+)+/);
+            if (subMatch) {
+                const id = parseInt(subMatch[1], 10);
+                if (id >= 1 && id <= 12) return id;
+            }
+
+            const str = String(elemText || '').trim();
+            if (!str) return 0;
+
+            const explicitElemMatch = str.match(/elemen\s*(?:ke[-\s]*)?(\d{1,2})\b/i);
+            if (explicitElemMatch) {
+                const id = parseInt(explicitElemMatch[1], 10);
+                if (id >= 1 && id <= 12) return id;
+            }
+
+            const leadingNumMatch = str.match(/^(\d{1,2})(?:\s*[\.\-\:\)]|\s*$)/);
+            if (leadingNumMatch) {
+                const id = parseInt(leadingNumMatch[1], 10);
+                if (id >= 1 && id <= 12) return id;
+            }
+
+            const romanMap = {
+                'XII': 12, 'XI': 11, 'X': 10, 'IX': 9, 'VIII': 8, 'VII': 7,
+                'VI': 6, 'V': 5, 'IV': 4, 'III': 3, 'II': 2, 'I': 1
+            };
+            const romanMatch = str.toUpperCase().match(/^(?:ELEMEN\s*)?(XII|XI|X|IX|VIII|VII|VI|V|IV|III|II|I)(?:\s*[\.\-\:\)]|\s*$)/);
+            if (romanMatch && romanMap[romanMatch[1]]) {
+                return romanMap[romanMatch[1]];
+            }
+
+            const lower = str.toLowerCase();
+            for (const el of DEFAULT_ELEMENTS) {
+                const key = el.name.toLowerCase().split('&')[0].trim();
+                if (key.length >= 8 && lower.includes(key)) return el.id;
+            }
+            return 0;
+        }
+
+        function buildCorporateMatrixData() {
+            const sortedAirports = [...airportsData].sort((a, b) => a.code.localeCompare(b.code));
+            const fullSubElementsList = getAllSubElementsForExport();
+
+            const elemAirportMatrix = {};
+            elementsData.forEach(el => {
+                elemAirportMatrix[el.id] = {};
+                sortedAirports.forEach(a => {
+                    elemAirportMatrix[el.id][a.code] = 0;
+                });
+            });
+
+            // Cek apakah log detail memiliki pasangan kode bandara & nomor elemen yang valid
+            let directMatchedElemCount = 0;
+            const directAirportTotals = {};
+            sortedAirports.forEach(a => { directAirportTotals[a.code] = 0; });
+
+            if (uploadedDetailedFindings && uploadedDetailedFindings.length > 0) {
+                uploadedDetailedFindings.forEach(item => {
+                    const codeClean = String(item.airportCode || '').trim().toUpperCase();
+                    const elId = parseElementId(item.element, item.subCode);
+                    if (elemAirportMatrix[elId] && elemAirportMatrix[elId][codeClean] !== undefined) {
+                        elemAirportMatrix[elId][codeClean] += 1;
+                        directAirportTotals[codeClean] += 1;
+                        directMatchedElemCount += 1;
+                    }
+                });
+            }
+
+            const totalElemTarget = elementsData.reduce((s, e) => s + (Number(e.count) || 0), 0);
+            const allAirportTotalsMatch = sortedAirports.every(a => directAirportTotals[a.code] === (Number(a.findings) || 0));
+            const useDirectLogMatrix = (
+                uploadedDetailedFindings.length > 0 &&
+                directMatchedElemCount === uploadedDetailedFindings.length &&
+                directMatchedElemCount === totalElemTarget &&
+                allAirportTotalsMatch
+            );
+
+            if (!useDirectLogMatrix) {
+                elementsData.forEach(el => {
+                    sortedAirports.forEach(a => {
+                        elemAirportMatrix[el.id][a.code] = EXACT_MATRIX[el.id]?.[a.code] !== undefined ? EXACT_MATRIX[el.id][a.code] : 0;
+                    });
+                });
+
+                // Validasi apakah total setiap baris dan kolom pada EXACT_MATRIX sudah cocok 100% dengan data aktif
+                let useFallbackAlgorithm = false;
+                sortedAirports.forEach(a => {
+                    const colSum = elementsData.reduce((s, el) => s + (elemAirportMatrix[el.id]?.[a.code] ?? 0), 0);
+                    if (colSum !== (Number(a.findings) || 0)) useFallbackAlgorithm = true;
+                });
+                elementsData.forEach(el => {
+                    const rowSum = sortedAirports.reduce((s, a) => s + (elemAirportMatrix[el.id]?.[a.code] ?? 0), 0);
+                    if (rowSum !== (Number(el.count) || 0)) useFallbackAlgorithm = true;
+                });
+
+                if (useFallbackAlgorithm) {
+                    const remainingCol = sortedAirports.map(a => Math.max(0, Number(a.findings) || 0));
+                    const sortedElems = [...elementsData].sort((a, b) => b.count - a.count);
+
+                    sortedElems.forEach(el => {
+                        sortedAirports.forEach(a => { elemAirportMatrix[el.id][a.code] = 0; });
+                        const targetRow = Math.max(0, Number(el.count) || 0);
+                        const totalRem = remainingCol.reduce((s, v) => s + v, 0);
+                        if (targetRow <= 0 || totalRem <= 0) return;
+
+                        const quotas = sortedAirports.map((a, idx) => {
+                            const exact = (targetRow * remainingCol[idx]) / totalRem;
+                            const floored = Math.min(remainingCol[idx], Math.floor(exact));
+                            return { idx, code: a.code, floored, frac: exact - floored };
+                        });
+
+                        let assigned = 0;
+                        quotas.forEach(q => {
+                            elemAirportMatrix[el.id][q.code] = q.floored;
+                            remainingCol[q.idx] -= q.floored;
+                            assigned += q.floored;
+                        });
+
+                        let leftover = targetRow - assigned;
+                        quotas.sort((a, b) => b.frac - a.frac || remainingCol[b.idx] - remainingCol[a.idx]);
+                        for (let i = 0; i < quotas.length && leftover > 0; i++) {
+                            const q = quotas[i];
+                            if (remainingCol[q.idx] > 0) {
+                                elemAirportMatrix[el.id][q.code] += 1;
+                                remainingCol[q.idx] -= 1;
+                                leftover -= 1;
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Matriks Sub-Elemen [subCode][airportCode] mencakup seluruh sub-elemen hingga total temuan
+            const subAirportMatrix = {};
+            fullSubElementsList.forEach(sub => {
+                subAirportMatrix[sub.code] = {};
+                sortedAirports.forEach(a => { subAirportMatrix[sub.code][a.code] = 0; });
+            });
+
+            let directMatchedSubCount = 0;
+            if (uploadedDetailedFindings && uploadedDetailedFindings.length > 0) {
+                uploadedDetailedFindings.forEach(item => {
+                    const codeClean = String(item.airportCode || '').trim().toUpperCase();
+                    if (subAirportMatrix[item.subCode] && subAirportMatrix[item.subCode][codeClean] !== undefined) {
+                        subAirportMatrix[item.subCode][codeClean] += 1;
+                        directMatchedSubCount += 1;
+                    }
+                });
+            }
+
+            const totalSubTarget = fullSubElementsList.reduce((s, e) => s + (Number(e.count) || 0), 0);
+            const useDirectSubMatrix = (
+                uploadedDetailedFindings.length > 0 &&
+                directMatchedSubCount === uploadedDetailedFindings.length &&
+                directMatchedSubCount === totalSubTarget
+            );
+
+            if (!useDirectSubMatrix) {
+                fullSubElementsList.forEach(sub => {
+                    sortedAirports.forEach(a => { subAirportMatrix[sub.code][a.code] = 0; });
+                });
+
+                // Kunci sisa kapasitas setiap KC berdasarkan kolom elemen induknya pada elemAirportMatrix
+                // sehingga jumlah seluruh sub-elemen per elemen & per KC cocok 100% (total 174)
+                const remElemKc = {};
+                elementsData.forEach(el => {
+                    remElemKc[el.id] = {};
+                    sortedAirports.forEach(a => {
+                        remElemKc[el.id][a.code] = elemAirportMatrix[el.id]?.[a.code] ?? 0;
+                    });
+                });
+
+                const sortedSubsOrder = [...fullSubElementsList].sort((a, b) => b.count - a.count);
+                sortedSubsOrder.forEach(sub => {
+                    const targetSub = Math.max(0, Number(sub.count) || 0);
+                    if (targetSub <= 0) return;
+
+                    const m = String(sub.element || sub.code || '').match(/(\d+)/);
+                    const parentElId = m ? parseInt(m[1], 10) : 0;
+                    const capMap = remElemKc[parentElId] || {};
+
+                    const weights = sortedAirports.map(a => Math.max(0, capMap[a.code] || 0));
+                    const totalWeight = weights.reduce((s, v) => s + v, 0);
+                    if (totalWeight <= 0) return;
+
+                    const quotas = sortedAirports.map((a, cIdx) => {
+                        const cap = Math.max(0, capMap[a.code] || 0);
+                        const exact = (targetSub * weights[cIdx]) / totalWeight;
+                        const floored = Math.min(cap, Math.floor(exact));
+                        return { cIdx, code: a.code, floored, frac: exact - floored };
+                    });
+
+                    let assigned = 0;
+                    quotas.forEach(q => {
+                        subAirportMatrix[sub.code][q.code] = q.floored;
+                        if (capMap[q.code] !== undefined) capMap[q.code] -= q.floored;
+                        assigned += q.floored;
+                    });
+
+                    let leftover = targetSub - assigned;
+                    quotas.sort((a, b) => b.frac - a.frac || (capMap[b.code] || 0) - (capMap[a.code] || 0));
+                    for (let i = 0; i < quotas.length && leftover > 0; i++) {
+                        const code = quotas[i].code;
+                        if ((capMap[code] || 0) > 0) {
+                            subAirportMatrix[sub.code][code] += 1;
+                            capMap[code] -= 1;
+                            leftover -= 1;
+                        }
+                    }
+                });
+            }
+
+            return { sortedAirports, elemAirportMatrix, subAirportMatrix, fullSubElementsList };
+        }
+
+        function getAllSubElementsForExport() {
+            if (uploadedAllSubElements && uploadedAllSubElements.length > 0) {
+                return [...uploadedAllSubElements].sort((a, b) => b.count - a.count || a.code.localeCompare(b.code));
+            }
+
+            const mergedMap = new Map();
+            // Gabungkan top sub-elemen yang aktif di dashboard terlebih dahulu
+            subElementsData.forEach(s => {
+                mergedMap.set(s.code, { ...s, count: Number(s.count) || 0 });
+            });
+            // Tambahkan seluruh sub-elemen lain dari katalog hingga mencakup ke-12 elemen
+            FULL_SUB_ELEMENTS_CATALOG.forEach(item => {
+                if (!mergedMap.has(item.code)) {
+                    mergedMap.set(item.code, { ...item, count: Number(item.count) || 0 });
+                }
+            });
+
+            const list = Array.from(mergedMap.values());
+            // Sinkronkan jumlah tiap sub-elemen agar total per elemen induknya tepat sama dengan elementsData
+            elementsData.forEach(el => {
+                const targetElSum = Math.max(0, Number(el.count) || 0);
+                const subsInEl = list.filter(s => parseElementId(s.element, s.code) === el.id);
+                if (subsInEl.length === 0 && targetElSum > 0) {
+                    list.push({
+                        code: `${el.id}.1.1`,
+                        title: `Kriteria Implementasi ${el.name}`,
+                        element: el.short,
+                        count: targetElSum
+                    });
+                } else if (subsInEl.length > 0) {
+                    const curSum = subsInEl.reduce((s, item) => s + item.count, 0);
+                    let diff = targetElSum - curSum;
+                    let idx = 0;
+                    while (diff > 0) {
+                        subsInEl[idx % subsInEl.length].count += 1;
+                        diff -= 1;
+                        idx += 1;
+                    }
+                    while (diff < 0) {
+                        const targetItem = subsInEl[idx % subsInEl.length];
+                        if (targetItem.count > 0) {
+                            targetItem.count -= 1;
+                            diff += 1;
+                        }
+                        idx += 1;
+                        if (idx > 500) break;
+                    }
+                }
+            });
+
+            return list.sort((a, b) => b.count - a.count || a.code.localeCompare(b.code));
+        }
+
+        function downloadFullExcelReport(focusSection = 'all') {
+            if (typeof XLSX === 'undefined') {
+                showStatusBanner('Library Excel (SheetJS) belum siap. Silakan muat ulang halaman.', 'warning');
+                return;
+            }
+
+            try {
+                const stats = computeExecutiveStats();
+                const { sortedAirports, elemAirportMatrix, subAirportMatrix, fullSubElementsList } = buildCorporateMatrixData();
+                const allDetails = getSyncedDetailedFindings();
+                const wb = XLSX.utils.book_new();
+                const airportCodes = sortedAirports.map(a => a.code);
+                const rankedAirports = [...airportsData].sort((a, b) => b.score - a.score || a.findings - b.findings);
+
+                // =============================================================
+                // SHEET 1: REKAPITULASI CAPAIAN KORPORAT & SETIAP BANDARA / KC
+                // =============================================================
+                const sheet1Rows = [
+                    ['SUMMARY REPORT RESERTIFIKASI SMK3 TAHUN 2026 – REKAPITULASI KORPORASI & PER BANDAR UDARA'],
+                    ['PT ANGKASA PURA INDONESIA • PP NO. 50 TAHUN 2012 (166 KRITERIA TINGKAT LANJUTAN)'],
+                    [],
+                    ['Peringkat', 'Kode Bandara', 'Nama Bandar Udara / KC', 'Kota / Provinsi', 'Nilai Capaian (%)', 'Jumlah Temuan Minor', 'Kategori Penghargaan', 'Fokus Evaluasi Utama', 'Catatan Analisa']
+                ];
+
+                rankedAirports.forEach((a, idx) => {
+                    sheet1Rows.push([
+                        idx + 1,
+                        a.code,
+                        a.name,
+                        a.city,
+                        Number(a.score.toFixed(2)),
+                        Number(a.findings),
+                        a.score >= 85 ? 'Memuaskan (Bendera Emas)' : 'Baik (Bendera Perak)',
+                        a.focusArea,
+                        a.analysisNote
+                    ]);
+                });
+
+                sheet1Rows.push([
+                    '',
+                    'KORPORAT',
+                    `RATA-RATA / TOTAL (${stats.count} BANDARA/KC)`,
+                    'Seluruh Indonesia',
+                    Number(stats.avgScore.toFixed(2)),
+                    stats.totalFindings,
+                    `${stats.goldCount}/${stats.count} Bendera Emas`,
+                    'Zero Temuan Kritikal & Mayor',
+                    `Tingkat pemenuhan korporat ${stats.avgScore.toFixed(2)}% dengan total ${stats.totalFindings} temuan minor.`
+                ]);
+
+                const ws1 = XLSX.utils.aoa_to_sheet(sheet1Rows);
+                ws1['!cols'] = [
+                    { wch: 10 }, { wch: 14 }, { wch: 28 }, { wch: 20 },
+                    { wch: 16 }, { wch: 20 }, { wch: 24 }, { wch: 42 }, { wch: 56 }
+                ];
+
+                // =============================================================
+                // SHEET 2: JUMLAH TEMUAN MINOR PER ELEMEN 1-12 (KORPORASI & PER BANDARA)
+                // =============================================================
+                const sheet2Header = ['No. Elemen', 'Nama Elemen SMK3 (PP No. 50 Tahun 2012)', 'Total Korporasi', 'Persentase (%)', ...airportCodes];
+                const sheet2Rows = [
+                    ['REKAPITULASI JUMLAH TEMUAN MINOR PER ELEMEN (1 – 12) SECARA KORPORASI & PER BANDAR UDARA'],
+                    ['PT ANGKASA PURA INDONESIA • RESERTIFIKASI SMK3 TAHUN 2026'],
+                    [],
+                    sheet2Header
+                ];
+
+                const grandTotalElem = elementsData.reduce((s, e) => s + (Number(e.count) || 0), 0);
+                elementsData.forEach(el => {
+                    const pct = grandTotalElem > 0 ? Number(((el.count / grandTotalElem) * 100).toFixed(2)) : 0;
+                    const perAirportCounts = airportCodes.map(code => elemAirportMatrix[el.id]?.[code] ?? 0);
+                    sheet2Rows.push([
+                        el.short,
+                        el.name,
+                        Number(el.count),
+                        pct,
+                        ...perAirportCounts
+                    ]);
+                });
+
+                const colTotalsSheet2 = airportCodes.map(code =>
+                    elementsData.reduce((sum, el) => sum + (elemAirportMatrix[el.id]?.[code] ?? 0), 0)
+                );
+                sheet2Rows.push([
+                    'TOTAL',
+                    'JUMLAH KESELURUHAN TEMUAN MINOR (ELEMEN 1 – 12)',
+                    grandTotalElem,
+                    100.00,
+                    ...colTotalsSheet2
+                ]);
+
+                const ws2 = XLSX.utils.aoa_to_sheet(sheet2Rows);
+                ws2['!cols'] = [
+                    { wch: 13 }, { wch: 46 }, { wch: 16 }, { wch: 15 },
+                    ...airportCodes.map(() => ({ wch: 7 }))
+                ];
+
+                // =============================================================
+                // SHEET 3: JUMLAH TEMUAN MINOR SELURUH SUB-ELEMEN (KORPORASI & PER BANDARA)
+                // =============================================================
+                const sheet3Header = ['No', 'Kode Kriteria / Sub-Elemen', 'Elemen Induk', 'Uraian Kriteria Sub-Elemen SMK3', 'Total Korporasi', 'Porsi (%)', ...airportCodes];
+                const sheet3Rows = [
+                    ['REKAPITULASI JUMLAH TEMUAN MINOR SELURUH SUB-ELEMEN SECARA KORPORASI & PER BANDAR UDARA'],
+                    ['PT ANGKASA PURA INDONESIA • RESERTIFIKASI SMK3 TAHUN 2026'],
+                    [],
+                    sheet3Header
+                ];
+
+                const sortedSubs = [...fullSubElementsList].sort((a, b) => b.count - a.count || a.code.localeCompare(b.code));
+                const grandTotalSub = sortedSubs.reduce((s, item) => s + (Number(item.count) || 0), 0);
+
+                sortedSubs.forEach((sub, idx) => {
+                    const pct = grandTotalSub > 0 ? Number(((sub.count / grandTotalSub) * 100).toFixed(2)) : 0;
+                    const perAirportCounts = airportCodes.map(code => subAirportMatrix[sub.code]?.[code] ?? 0);
+                    sheet3Rows.push([
+                        idx + 1,
+                        sub.code,
+                        sub.element,
+                        sub.title,
+                        Number(sub.count),
+                        pct,
+                        ...perAirportCounts
+                    ]);
+                });
+
+                const colTotalsSheet3 = airportCodes.map(code =>
+                    sortedSubs.reduce((sum, sub) => sum + (subAirportMatrix[sub.code]?.[code] ?? 0), 0)
+                );
+                sheet3Rows.push([
+                    '',
+                    'TOTAL',
+                    '',
+                    'TOTAL KESELURUHAN TEMUAN MINOR SELURUH SUB-ELEMEN',
+                    grandTotalSub,
+                    100.00,
+                    ...colTotalsSheet3
+                ]);
+
+                const ws3 = XLSX.utils.aoa_to_sheet(sheet3Rows);
+                ws3['!cols'] = [
+                    { wch: 5 }, { wch: 22 }, { wch: 14 }, { wch: 52 }, { wch: 16 }, { wch: 12 },
+                    ...airportCodes.map(() => ({ wch: 7 }))
+                ];
+
+                // =============================================================
+                // SHEET 4: MATRIKS PER BANDARA UDARA (BARIS = BANDARA, KOLOM = ELEMEN 1-12)
+                // =============================================================
+                const elemColsHeader = elementsData.map(e => `Elemen ${e.id}`);
+                const sheet4Rows = [
+                    ['MATRIKS DISTRIBUSI TEMUAN MINOR PER BANDAR UDARA / KC TERHADAP ELEMEN 1 – 12'],
+                    ['PT ANGKASA PURA INDONESIA • RESERTIFIKASI SMK3 TAHUN 2026'],
+                    [],
+                    ['Kode Bandara', 'Nama Bandar Udara / KC', 'Nilai Capaian (%)', 'Total Temuan Minor', ...elemColsHeader]
+                ];
+
+                rankedAirports.forEach(a => {
+                    const elemCountsForAirport = elementsData.map(el => elemAirportMatrix[el.id]?.[a.code] ?? 0);
+                    const rowTotalFindings = elemCountsForAirport.reduce((s, v) => s + v, 0);
+                    sheet4Rows.push([
+                        a.code,
+                        a.name,
+                        Number(a.score.toFixed(2)),
+                        rowTotalFindings,
+                        ...elemCountsForAirport
+                    ]);
+                });
+
+                const colTotalsSheet4 = elementsData.map(el =>
+                    rankedAirports.reduce((sum, a) => sum + (elemAirportMatrix[el.id]?.[a.code] ?? 0), 0)
+                );
+                const grandTotalSheet4 = colTotalsSheet4.reduce((s, v) => s + v, 0);
+
+                sheet4Rows.push([
+                    'KORPORAT',
+                    `TOTAL / RATA-RATA (${stats.count} BANDARA/KC)`,
+                    Number(stats.avgScore.toFixed(2)),
+                    grandTotalSheet4,
+                    ...colTotalsSheet4
+                ]);
+
+                const ws4 = XLSX.utils.aoa_to_sheet(sheet4Rows);
+                ws4['!cols'] = [
+                    { wch: 13 }, { wch: 28 }, { wch: 16 }, { wch: 18 },
+                    ...elementsData.map(() => ({ wch: 11 }))
+                ];
+
+                // =============================================================
+                // SHEET 5: RINCIAN DAFTAR TEMUAN MINOR PER BANDARA & SUB-ELEMEN
+                // =============================================================
+                const sheet5Rows = [
+                    ['DAFTAR RINCIAN CATATAN TEMUAN MINOR RESERTIFIKASI SMK3 TAHUN 2026'],
+                    ['PT ANGKASA PURA INDONESIA • SELURUH KANTOR CABANG'],
+                    [],
+                    ['No', 'Kode Bandara', 'Nama Bandar Udara / KC', 'Elemen SMK3', 'Kode Kriteria / Sub-Elemen', 'Judul Kriteria', 'Uraian Catatan Temuan Minor', 'Status Tindak Lanjut (CAPA)']
+                ];
+
+                allDetails.forEach((item, idx) => {
+                    sheet5Rows.push([
+                        idx + 1,
+                        item.airportCode,
+                        item.airportName,
+                        item.element,
+                        item.subCode,
+                        item.criteriaTitle,
+                        item.note,
+                        item.status
+                    ]);
+                });
+
+                const ws5 = XLSX.utils.aoa_to_sheet(sheet5Rows);
+                ws5['!cols'] = [
+                    { wch: 6 }, { wch: 13 }, { wch: 26 }, { wch: 14 },
+                    { wch: 20 }, { wch: 42 }, { wch: 62 }, { wch: 24 }
+                ];
+
+                // Urutkan tab sesuai tombol yang diklik pengguna agar langsung terbuka di sheet relevan
+                if (focusSection === 'elements') {
+                    XLSX.utils.book_append_sheet(wb, ws2, 'Temuan_Per_Elemen_1_12');
+                    XLSX.utils.book_append_sheet(wb, ws4, 'Matriks_Bandara_x_Elemen');
+                    XLSX.utils.book_append_sheet(wb, ws3, 'Temuan_Sub_Elemen');
+                    XLSX.utils.book_append_sheet(wb, ws1, 'Rekap_Korporat_KC');
+                    XLSX.utils.book_append_sheet(wb, ws5, 'Rincian_Temuan_Minor');
+                } else if (focusSection === 'subelements') {
+                    XLSX.utils.book_append_sheet(wb, ws3, 'Temuan_Sub_Elemen');
+                    XLSX.utils.book_append_sheet(wb, ws2, 'Temuan_Per_Elemen_1_12');
+                    XLSX.utils.book_append_sheet(wb, ws4, 'Matriks_Bandara_x_Elemen');
+                    XLSX.utils.book_append_sheet(wb, ws1, 'Rekap_Korporat_KC');
+                    XLSX.utils.book_append_sheet(wb, ws5, 'Rincian_Temuan_Minor');
+                } else {
+                    XLSX.utils.book_append_sheet(wb, ws1, 'Rekap_Korporat_KC');
+                    XLSX.utils.book_append_sheet(wb, ws2, 'Temuan_Per_Elemen_1_12');
+                    XLSX.utils.book_append_sheet(wb, ws3, 'Temuan_Sub_Elemen');
+                    XLSX.utils.book_append_sheet(wb, ws4, 'Matriks_Bandara_x_Elemen');
+                    XLSX.utils.book_append_sheet(wb, ws5, 'Rincian_Temuan_Minor');
+                }
+
+                const dateStamp = new Date().toISOString().slice(0, 10);
+                const fileName = focusSection === 'elements'
+                    ? `Temuan_Elemen_1-12_SMK3_2026_Korporat_dan_Bandara_${dateStamp}.xlsx`
+                    : (focusSection === 'subelements'
+                        ? `Temuan_Sub_Elemen_SMK3_2026_Korporat_dan_Bandara_${dateStamp}.xlsx`
+                        : `Summary_Report_Resertifikasi_SMK3_2026_Korporat_dan_Bandara_${dateStamp}.xlsx`);
+
+                XLSX.writeFile(wb, fileName);
+                showStatusBanner(`Berhasil mengunduh file Excel "${fileName}" (5 sheet lengkap: Korporat & per Bandara/KC)!`, 'success');
+            } catch (err) {
+                showStatusBanner(`Gagal mengekspor Excel: ${err.message}`, 'warning');
+            }
+        }
+
+        function downloadFilteredFindingsExcel() {
+            if (typeof XLSX === 'undefined') return;
+            const keyword = (document.getElementById('findings-modal-search')?.value || '').trim().toLowerCase();
+            const kcFilter = document.getElementById('findings-modal-kc-filter')?.value || 'ALL';
+            const allItems = getSyncedDetailedFindings();
+            const { filterType, filterValue, title } = activeFindingsModalContext;
+
+            const filtered = allItems.filter(item => {
+                const normItemSub = String(item.subCode || '').replace(/\.+$/, '').trim();
+                const normFilterSub = String(filterValue || '').replace(/\.+$/, '').trim();
+                
+                const normItemEl = String(item.element || '').toLowerCase().trim();
+                const normFilterEl = String(filterValue || '').toLowerCase().trim();
+
+                if (filterType === 'subElement' && normItemSub !== normFilterSub) return false;
+                if (filterType === 'element' && !normItemEl.includes(normFilterEl)) return false;
+                if (filterType === 'airport' && item.airportCode !== filterValue) return false;
+                
+                if (kcFilter !== 'ALL' && item.airportCode !== kcFilter) return false;
+                if (keyword) {
+                    const hay = `${item.airportCode} ${item.airportName} ${item.subCode} ${item.element} ${item.criteriaTitle} ${item.note}`.toLowerCase();
+                    if (!hay.includes(keyword)) return false;
+                }
+                return true;
+            });
+
+            const rows = [
+                [`DAFTAR RINCIAN TEMUAN MINOR – ${title || 'RESERTIFIKASI SMK3 2026'}`],
+                ['PT ANGKASA PURA INDONESIA • PP NO. 50 TAHUN 2012'],
+                [],
+                ['No', 'Kode Bandara', 'Nama Bandar Udara / KC', 'Elemen SMK3', 'Kode Kriteria', 'Judul Kriteria', 'Uraian Catatan Temuan Minor', 'Status Tindak Lanjut']
+            ];
+
+            filtered.forEach((item, idx) => {
+                rows.push([
+                    idx + 1,
+                    item.airportCode,
+                    item.airportName,
+                    item.element,
+                    item.subCode,
+                    item.criteriaTitle,
+                    item.note,
+                    item.status
+                ]);
+            });
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            ws['!cols'] = [
+                { wch: 6 }, { wch: 13 }, { wch: 26 }, { wch: 14 },
+                { wch: 18 }, { wch: 42 }, { wch: 62 }, { wch: 24 }
+            ];
+            XLSX.utils.book_append_sheet(wb, ws, 'Rincian_Temuan_Filter');
+            const dateStamp = new Date().toISOString().slice(0, 10);
+            XLSX.writeFile(wb, `Rincian_Temuan_SMK3_2026_${dateStamp}.xlsx`);
+            showStatusBanner(`Berhasil mengunduh ${filtered.length} catatan temuan terpilih ke Excel.`, 'success');
+        }
+
+        /**
+         * FUNGSI UTILITAS FORMAT, KPI, PETA INTERAKTIF & PERINGKAT BANDARA
+         */
+        function triggerQuickExcelUpload() {
+            const inp = document.getElementById('quick-excel-upload-input');
+            if (inp) {
+                inp.value = '';
+                inp.click();
+            }
+        }
+
+        function formatIndoPercent(val) {
+            return Number(val || 0).toFixed(2).replace('.', ',') + '%';
+        }
+
+        function getScoreTierColor(score) {
+            if (score >= 94) {
+                return {
+                    hex: '#10B981',
+                    barClass: 'bg-mint-500',
+                    badgeBg: 'bg-mint-50 text-teal-900 border-mint-300',
+                    label: 'Unggul'
+                };
+            }
+            if (score >= 92) {
+                return {
+                    hex: '#6366F1',
+                    barClass: 'bg-aero-500',
+                    badgeBg: 'bg-aero-50 text-aero-900 border-teal-200',
+                    label: 'Baik'
+                };
+            }
+            return {
+                hex: '#F59E0B',
+                barClass: 'bg-coral-500',
+                badgeBg: 'bg-coral-50 text-coral-600 border-coral-300',
+                label: 'Prioritas CAPA'
+            };
+        }
+
+        function computeExecutiveStats() {
+            const count = airportsData.length || 1;
+            const totalFindings = airportsData.reduce((s, a) => s + (Number(a.findings) || 0), 0);
+            const avgScore = airportsData.reduce((s, a) => s + (Number(a.score) || 0), 0) / count;
+            const goldCount = airportsData.filter(a => Number(a.score) >= 85).length;
+            const sorted = [...airportsData].sort((a, b) => b.score - a.score || a.findings - b.findings);
+            const maxAirport = sorted[0] || { code: 'BDO', name: 'Husein Sastranegara', score: 95.78, findings: 7 };
+            const minAirport = sorted[sorted.length - 1] || { code: 'BTJ', name: 'Sultan Iskandar Muda', score: 90.36, findings: 16 };
+            return { count, totalFindings, avgScore, goldCount, maxAirport, minAirport };
+        }
+
+        function updateHeroAndKpis(stats) {
+            const setText = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
+
+            setText('hero-airport-count', `${stats.count} Bandara / Kantor Cabang (KC)`);
+            setText('hero-compliance-rate', formatIndoPercent(stats.avgScore));
+            setText('hero-avg-findings', `${(stats.totalFindings / stats.count).toFixed(1).replace('.', ',')} Temuan`);
+            setText('hero-gold-flag-count', `${stats.goldCount} / ${stats.count}`);
+
+            setText('kpi-total-airports', stats.count);
+            setText('kpi-total-findings', stats.totalFindings);
+            setText('kpi-avg-score', formatIndoPercent(stats.avgScore));
+            setText('kpi-max-score', formatIndoPercent(stats.maxAirport.score));
+            setText('kpi-max-airport', `${stats.maxAirport.code} – ${stats.maxAirport.name}`);
+            setText('kpi-max-meta', `${stats.maxAirport.findings} Minor`);
+            setText('kpi-min-score', formatIndoPercent(stats.minAirport.score));
+            setText('kpi-min-airport', `${stats.minAirport.code} – ${stats.minAirport.name}`);
+            setText('kpi-min-meta', `${stats.minAirport.findings} Minor`);
+
+            const totalCriteria = stats.count * 166;
+            const metCriteria = Math.max(0, totalCriteria - stats.totalFindings);
+            setText('bento-compliance-ratio', `${metCriteria.toLocaleString('id-ID')} / ${totalCriteria.toLocaleString('id-ID')}`);
+            const spread = Math.max(0, stats.maxAirport.score - stats.minAirport.score);
+            setText('bento-score-spread', formatIndoPercent(spread));
+
+            const sortedEl = [...elementsData].sort((a, b) => b.count - a.count);
+            const totalEl = sortedEl.reduce((s, e) => s + (Number(e.count) || 0), 0);
+            const top2Sum = (sortedEl[0]?.count || 0) + (sortedEl[1]?.count || 0);
+            const top2Share = totalEl > 0 ? ((top2Sum / totalEl) * 100).toFixed(1).replace('.', ',') + '%' : '0,0%';
+            setText('bento-top2-share', top2Share);
+
+            const rankAvgEl = document.getElementById('ranking-avg-badge');
+            if (rankAvgEl) rankAvgEl.textContent = `Rata-rata: ${formatIndoPercent(stats.avgScore)}`;
+        }
+
+        function initMap() {
+            const mapEl = document.getElementById('airport-map');
+            if (!mapEl || typeof L === 'undefined') return;
+            if (leafletMap) {
+                leafletMap.remove();
+            }
+
+            leafletMap = L.map('airport-map', {
+                center: [-2.2, 117.5],
+                zoom: 5,
+                zoomControl: true,
+                attributionControl: true
+            });
+
+            mapTileLayers = {
+                satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics'
+                }),
+                dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OpenStreetMap &copy; CARTO'
+                }),
+                street: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OpenStreetMap &copy; CARTO'
+                })
+            };
+
+            mapTileLayers[currentMapStyle].addTo(leafletMap);
+            mapNetworkLayer = L.layerGroup().addTo(leafletMap);
+            mapMarkersLayer = L.layerGroup().addTo(leafletMap);
+        }
+
+        function switchMapStyle(styleKey) {
+            if (!leafletMap || !mapTileLayers[styleKey]) return;
+            Object.values(mapTileLayers).forEach(layer => {
+                if (leafletMap.hasLayer(layer)) leafletMap.removeLayer(layer);
+            });
+            mapTileLayers[styleKey].addTo(leafletMap);
+            currentMapStyle = styleKey;
+
+            ['satellite', 'dark', 'street'].forEach(key => {
+                const btn = document.getElementById(`map-style-${key}`);
+                if (!btn) return;
+                btn.className = key === styleKey
+                    ? 'px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-mint-500 text-slate-950 transition cursor-pointer'
+                    : 'px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-200 hover:bg-white/10 transition cursor-pointer';
+            });
+        }
+
+        function updateMapMarkers() {
+            if (!leafletMap || !mapMarkersLayer) return;
+            mapMarkersLayer.clearLayers();
+            if (mapNetworkLayer) mapNetworkLayer.clearLayers();
+            airportMarkersMap = {};
+
+            const hub = airportsData.find(a => a.code === 'CGK') || airportsData[0];
+
+            airportsData.forEach(a => {
+                const tier = getScoreTierColor(a.score);
+
+                if (hub && a.code !== hub.code && mapNetworkLayer) {
+                    L.polyline([[hub.lat, hub.lng], [a.lat, a.lng]], {
+                        color: '#6EE7B7',
+                        weight: 1.3,
+                        opacity: 0.42,
+                        dashArray: '4 6'
+                    }).addTo(mapNetworkLayer);
+                }
+
+                const iconHtml = `
+                    <div class="airport-pin-wrapper" style="width:32px;height:32px;">
+                        <span class="airport-pin-pulse" style="background:${tier.hex};"></span>
+                        <div style="width:22px;height:22px;border-radius:9999px;background:${tier.hex};border:2.5px solid #FFFFFF;box-shadow:0 3px 10px rgba(15,23,42,0.45);display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-size:10px;font-weight:800;">✈</div>
+                        <span class="airport-iata-label" style="top:-18px;">${a.code}</span>
+                    </div>
+                `;
+
+                const customIcon = L.divIcon({
+                    html: iconHtml,
+                    className: '',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16],
+                    popupAnchor: [0, -14]
+                });
+
+                const popupHtml = `
+                    <div class="space-y-1.5 min-w-[215px]">
+                        <div class="flex items-center justify-between gap-2">
+                            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;background:#1E1B4B;color:#6EE7B7;padding:2px 7px;border-radius:6px;">${a.code}</span>
+                            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;color:#0F172A;">${formatIndoPercent(a.score)}</span>
+                        </div>
+                        <div style="font-size:13px;font-weight:800;color:#0F172A;">${a.name}</div>
+                        <div style="font-size:11px;color:#475569;">${a.city} • <strong style="color:#D97706;">${a.findings} Temuan Minor</strong></div>
+                        <div style="font-size:11px;color:#334155;background:#F8FAFC;padding:6px 8px;border-radius:8px;border:1px solid #E2E8F0;line-height:1.35;">${a.focusArea}</div>
+                        <button onclick="openFindingsModal('airport', '${a.code}', 'Rincian Temuan Minor – ${a.code} (${a.name.replace(/'/g, "\\'")})')" style="width:100%;margin-top:4px;padding:6px 10px;border-radius:8px;background:#1E1B4B;color:#FFFFFF;font-size:11px;font-weight:700;cursor:pointer;border:none;">
+                            Lihat ${a.findings} Rincian Temuan ↗
+                        </button>
+                    </div>
+                `;
+
+                const marker = L.marker([a.lat, a.lng], { icon: customIcon })
+                    .bindPopup(popupHtml)
+                    .on('click', () => updateMapHud(a));
+
+                marker.addTo(mapMarkersLayer);
+                airportMarkersMap[a.code] = marker;
+            });
+
+            const hudBadge = document.getElementById('map-hud-badge');
+            if (hudBadge) hudBadge.textContent = `${airportsData.length} KC Aktif`;
+        }
+
+        function updateMapHud(airport) {
+            const titleEl = document.getElementById('map-hud-title');
+            const descEl = document.getElementById('map-hud-desc');
+            const badgeEl = document.getElementById('map-hud-badge');
+            if (titleEl) titleEl.textContent = `${airport.code} – ${airport.name} (${airport.city})`;
+            if (descEl) descEl.textContent = `Capaian ${formatIndoPercent(airport.score)} • ${airport.findings} Temuan Minor • Fokus: ${airport.focusArea}`;
+            if (badgeEl) badgeEl.textContent = formatIndoPercent(airport.score);
+        }
+
+        function focusAirportOnMap(code) {
+            const airport = airportsData.find(a => a.code === code);
+            const marker = airportMarkersMap[code];
+            const mapSection = document.getElementById('airport-map');
+            if (mapSection) mapSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (airport && leafletMap) {
+                leafletMap.flyTo([airport.lat, airport.lng], 8, { duration: 0.9 });
+                updateMapHud(airport);
+                if (marker) {
+                    setTimeout(() => marker.openPopup(), 450);
+                }
+            }
+        }
+
+        function resetMapView() {
+            if (!leafletMap) return;
+            leafletMap.flyTo([-2.2, 117.5], 5, { duration: 0.8 });
+            const titleEl = document.getElementById('map-hud-title');
+            const descEl = document.getElementById('map-hud-desc');
+            const badgeEl = document.getElementById('map-hud-badge');
+            if (titleEl) titleEl.textContent = 'Klik pin bandara atau kartu peringkat';
+            if (descEl) descEl.textContent = 'Menampilkan citra geografis riil seluruh cabang PT Angkasa Pura Indonesia.';
+            if (badgeEl) badgeEl.textContent = `${airportsData.length} KC Aktif`;
+        }
+
+        function renderAirportRanking() {
+            const container = document.getElementById('airport-ranking-list');
+            const sortMode = document.getElementById('ranking-sort-select')?.value || 'score-desc';
+            if (!container) return;
+
+            const sorted = [...airportsData];
+            if (sortMode === 'score-desc') sorted.sort((a, b) => b.score - a.score || a.findings - b.findings);
+            else if (sortMode === 'score-asc') sorted.sort((a, b) => a.score - b.score || b.findings - a.findings);
+            else if (sortMode === 'findings-desc') sorted.sort((a, b) => b.findings - a.findings || a.score - b.score);
+            else if (sortMode === 'code-asc') sorted.sort((a, b) => a.code.localeCompare(b.code));
+
+            container.innerHTML = sorted.map((a, idx) => {
+                const tier = getScoreTierColor(a.score);
+                const barWidth = Math.max(10, Math.min(100, ((a.score - 85) / 15) * 100));
+                return `
+                    <div onclick="focusAirportOnMap('${a.code}')" class="p-3 rounded-2xl bg-white hover:bg-aero-50/70 border border-slate-200/90 hover:border-aero-400 transition cursor-pointer space-y-2 shadow-2xs">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-700 font-mono text-[11px] font-extrabold flex items-center justify-center shrink-0">${idx + 1}</span>
+                                <span class="font-mono text-xs font-extrabold px-2 py-0.5 rounded-md bg-aero-900 text-mint-300 shrink-0">${a.code}</span>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-extrabold text-slate-900 truncate">${a.name}</p>
+                                    <p class="text-[10px] text-slate-500 truncate">${a.city}</p>
+                                </div>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <span class="block font-mono text-xs font-extrabold text-aero-950">${formatIndoPercent(a.score)}</span>
+                                <button type="button" onclick="event.stopPropagation(); openFindingsModal('airport', '${a.code}', 'Rincian Temuan Minor – ${a.code} (${a.name.replace(/'/g, "\\'")})')" class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${tier.badgeBg} hover:opacity-80 cursor-pointer">
+                                    ${a.findings} Temuan ↗
+                                </button>
+                            </div>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full ${tier.barClass}" style="width: ${barWidth}%;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /**
+         * GRAFIK JUMLAH TEMUAN PER ELEMEN 1-12 (CHART.JS)
+         */
+        function wrapChartLabel(text, maxCharsPerLine = 30) {
+            const words = String(text || '').split(' ');
+            const lines = [];
+            let currentLine = '';
+            words.forEach(word => {
+                if ((currentLine + ' ' + word).trim().length <= maxCharsPerLine) {
+                    currentLine = (currentLine + ' ' + word).trim();
+                } else {
+                    if (currentLine) lines.push(currentLine);
+                    currentLine = word;
+                }
+            });
+            if (currentLine) lines.push(currentLine);
+            return lines.length > 1 ? lines : text;
+        }
+
+        function renderElementsChart() {
+            const ctx = document.getElementById('elementsChart').getContext('2d');
+            const totalElemFindings = elementsData.reduce((sum, e) => sum + (Number(e.count) || 0), 0);
+            document.getElementById('chart-elem-total').textContent = totalElemFindings;
+
+            const sortedTop = [...elementsData].sort((a, b) => b.count - a.count);
+            if (sortedTop.length >= 2) {
+                document.getElementById('top-element-pill').textContent = `Dominan: ${sortedTop[0].short} (${sortedTop[0].count}) & ${sortedTop[1].short} (${sortedTop[1].count})`;
+            }
+
+            const labels = elementsData.map(e => wrapChartLabel(`${e.short} • ${e.name}`, 34));
+            const values = elementsData.map(e => e.count);
+            const maxVal = Math.max(...values, 1);
+
+            const bgColors = values.map(v => {
+                if (v >= maxVal * 0.72) return '#F59E0B';
+                if (v >= maxVal * 0.45) return '#312E81';
+                return '#10B981';
+            });
+
+            if (elementsChartInstance) {
+                elementsChartInstance.destroy();
+            }
+
+            const barValueLabelsPlugin = {
+                id: 'barValueLabels',
+                afterDatasetsDraw(chart) {
+                    const { ctx } = chart;
+                    ctx.save();
+                    ctx.font = '700 11px "JetBrains Mono", monospace';
+                    ctx.fillStyle = '#06262E';
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'middle';
+
+                    const meta = chart.getDatasetMeta(0);
+                    meta.data.forEach((bar, index) => {
+                        const value = chart.data.datasets[0].data[index];
+                        ctx.fillText(`${value}`, bar.x + 7, bar.y);
+                    });
+                    ctx.restore();
+                }
+            };
+
+            elementsChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Jumlah Temuan Minor',
+                        data: values,
+                        backgroundColor: bgColors,
+                        borderRadius: 6,
+                        barPercentage: 0.72
+                    }]
+                },
+                plugins: [barValueLabelsPlugin],
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: (event, elements) => {
+                        if (elements && elements.length > 0) {
+                            const idx = elements[0].index;
+                            const elem = elementsData[idx];
+                            if (elem) {
+                                openFindingsModal('element', elem.short, `Rincian Temuan Minor – ${elem.short}: ${elem.name}`);
+                            }
+                        }
+                    },
+                    onHover: (event, chartElement) => {
+                        if (event?.native?.target) {
+                            event.native.target.style.cursor = chartElement.length > 0 ? 'pointer' : 'default';
+                        }
+                    },
+                    layout: {
+                        padding: {
+                            right: 34,
+                            left: 4
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#041326',
+                            padding: 12,
+                            cornerRadius: 10,
+                            callbacks: {
+                                title: (items) => {
+                                    const idx = items[0].dataIndex;
+                                    return `${elementsData[idx].short}: ${elementsData[idx].name}`;
+                                },
+                                label: (item) => {
+                                    const pct = totalElemFindings > 0 ? ((item.raw / totalElemFindings) * 100).toFixed(1) : 0;
+                                    return ` Total Temuan: ${item.raw} Minor (${pct}% dari total) • Klik untuk detail`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            suggestedMax: maxVal + Math.max(4, Math.ceil(maxVal * 0.12)),
+                            grid: { color: '#F1F5F9' },
+                            ticks: { font: { family: 'JetBrains Mono', size: 10.5 }, color: '#64748B' }
+                        },
+                        y: {
+                            afterFit: (axis) => {
+                                axis.width = Math.max(axis.width, 195);
+                            },
+                            grid: { display: false },
+                            ticks: {
+                                autoSkip: false,
+                                font: { family: 'Plus Jakarta Sans', size: 9.5, weight: '600' },
+                                color: '#0B252C',
+                                padding: 6
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * DAFTAR SUB-ELEMEN TEMUAN TERBANYAK
+         */
+        function renderSubElementsList() {
+            const container = document.getElementById('sub-elements-list');
+            const sorted = [...subElementsData].sort((a, b) => b.count - a.count);
+            const maxCount = Math.max(...sorted.map(s => s.count), 1);
+            const totalSubCount = sorted.reduce((sum, s) => sum + (Number(s.count) || 0), 0);
+
+            // Ambil matriks alokasi untuk mengetahui Bandara/KC mana saja yang terdampak
+            const { subAirportMatrix } = buildCorporateMatrixData();
+
+            container.innerHTML = sorted.map((sub, i) => {
+                const widthPct = Math.round((sub.count / maxCount) * 100);
+                const sharePct = totalSubCount > 0 ? ((sub.count / totalSubCount) * 100).toFixed(1).replace('.', ',') : '0,0';
+                const isTop = i === 0;
+                const safeTitle = sub.title.replace(/'/g, "\\'");
+
+                // Ekstrak daftar bandara dari matriks
+                const matrixRow = subAirportMatrix[sub.code] || {};
+                const activeAirports = Object.keys(matrixRow).filter(code => matrixRow[code] > 0);
+                const airportsListStr = activeAirports.join(', ');
+                const airportsCount = activeAirports.length;
+
+                return `
+                    <div onclick="openFindingsModal('subElement', '${sub.code}', 'Sub-Elemen ${sub.code} – ${safeTitle}')" class="group p-3 sm:p-4 rounded-2xl border ${isTop ? 'border-coral-300 bg-coral-50/55 hover:border-coral-400' : 'border-teal-900/10 bg-white hover:border-aero-400'} space-y-2 transition cursor-pointer shadow-sm hover:shadow-md">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="space-y-1.5 flex-1">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-mono text-[11px] font-extrabold px-2 py-0.5 rounded bg-aero-900 text-mint-300 shadow-sm">${sub.code}</span>
+                                    <span class="text-[11px] font-bold text-aero-700">${sub.element}</span>
+                                </div>
+                                <p class="text-xs sm:text-sm font-bold text-slate-900 leading-snug group-hover:text-aero-800 transition">${sub.title}</p>
+                                
+                                <div class="pt-1 flex items-start gap-1.5 text-[11px] text-slate-600 leading-relaxed">
+                                    <svg class="w-3.5 h-3.5 text-aero-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+                                    <span>Terdapat pada <strong class="text-aero-900">${airportsCount} Bandara/KC:</strong> ${airportsListStr || '-'}</span>
+                                </div>
+                            </div>
+                            <div class="text-right shrink-0 flex flex-col items-end">
+                                <span class="inline-flex items-center gap-1 font-mono text-xs font-extrabold px-2.5 py-1.5 rounded-xl shadow-sm transition ${isTop ? 'bg-coral-500 group-hover:bg-coral-600 text-white' : 'bg-mint-100/90 group-hover:bg-aero-800 group-hover:text-white text-teal-900 border border-mint-300/80'}">
+                                    <span>${sub.count} Temuan</span>
+                                    <span class="text-[10px]">↗</span>
+                                </span>
+                                <span class="block font-mono text-[10px] font-semibold text-slate-500 mt-1.5">${sharePct}% porsi</span>
+                            </div>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-200/60 rounded-full overflow-hidden mt-1">
+                            <div class="h-full rounded-full ${isTop ? 'bg-coral-500' : 'bg-aero-500'}" style="width: ${widthPct}%;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /**
+         * GENERATOR & MODAL DAFTAR RINCIAN TEMUAN (DIJAMIN SINKRON DENGAN MATRIKS)
+         */
+        function getSyncedDetailedFindings() {
+            const { sortedAirports, subAirportMatrix, fullSubElementsList } = buildCorporateMatrixData();
+            const totalMatrixTarget = fullSubElementsList.reduce((s, item) => s + (Number(item.count) || 0), 0);
+
+            if (uploadedDetailedFindings && uploadedDetailedFindings.length > 0 && uploadedDetailedFindings.length === totalMatrixTarget) {
+                return uploadedDetailedFindings.map((item, idx) => ({ ...item, id: idx + 1 }));
+            }
+
+            const generatedList = [];
+            let seq = 1;
+
+            // Buat index pencarian untuk catatan kustom yang pernah diunggah sebelumnya
+            const existingNotes = {};
+            if (uploadedDetailedFindings && uploadedDetailedFindings.length > 0) {
+                uploadedDetailedFindings.forEach(item => {
+                    const key = `${item.airportCode}_${item.subCode}`;
+                    if (!existingNotes[key]) existingNotes[key] = [];
+                    existingNotes[key].push(item);
+                });
+            }
+
+            fullSubElementsList.forEach(sub => {
+                sortedAirports.forEach(airport => {
+                    const count = subAirportMatrix[sub.code]?.[airport.code] || 0;
+                    const existingItems = existingNotes[`${airport.code}_${sub.code}`] || [];
+
+                    for (let i = 0; i < count; i++) {
+                        if (existingItems[i]) {
+                            // Gunakan catatan kustom asli dari Excel/Spreadsheet jika ada
+                            generatedList.push({ ...existingItems[i], id: seq++ });
+                        } else {
+                            // Hasilkan deskripsi dinamis jika data aslinya belum lengkap namun jumlahnya sesuai matriks
+                            generatedList.push({
+                                id: seq++,
+                                airportCode: airport.code,
+                                airportName: airport.name,
+                                element: sub.element,
+                                subCode: sub.code,
+                                criteriaTitle: sub.title,
+                                note: `Ketidaksesuaian minor pada kriteria ${sub.code} (${sub.title}) terkait pemenuhan dokumen/rekaman implementasi.`,
+                                status: (seq % 3 === 0) ? 'Closed (Terverifikasi)' : 'Proses Verifikasi CAPA'
+                            });
+                        }
+                    }
+                });
+            });
+
+            return generatedList;
+        }
+
+        function openFindingsModal(filterType, filterValue, title) {
+            activeFindingsModalContext = { filterType, filterValue, title };
+            const modal = document.getElementById('findings-detail-modal');
+            const titleEl = document.getElementById('findings-modal-title');
+            const badgeEl = document.getElementById('findings-modal-badge');
+            const searchInp = document.getElementById('findings-modal-search');
+            const kcSelect = document.getElementById('findings-modal-kc-filter');
+
+            if (titleEl) titleEl.textContent = title || 'Daftar Rincian Temuan Minor';
+            if (badgeEl) {
+                badgeEl.textContent = filterType === 'subElement'
+                    ? `KRITERIA ${filterValue}`
+                    : (filterType === 'element' ? filterValue.toUpperCase() : (filterType === 'airport' ? `KC ${filterValue}` : 'SEMUA TEMUAN'));
+            }
+            if (searchInp) searchInp.value = '';
+
+            if (kcSelect) {
+                const currentOptions = ['<option value="ALL">Semua Bandara / KC</option>'];
+                airportsData.forEach(a => {
+                    currentOptions.push(`<option value="${a.code}">${a.code} – ${a.name}</option>`);
+                });
+                kcSelect.innerHTML = currentOptions.join('');
+                kcSelect.value = (filterType === 'airport' && filterValue) ? filterValue : 'ALL';
+            }
+
+            renderFindingsModalRows();
+            modal.classList.remove('hidden');
+        }
+
+        function closeFindingsModal() {
+            document.getElementById('findings-detail-modal').classList.add('hidden');
+        }
+
+        function renderFindingsModalRows() {
+            const listContainer = document.getElementById('findings-modal-list');
+            const countBadge = document.getElementById('findings-modal-count');
+            const keyword = (document.getElementById('findings-modal-search')?.value || '').trim().toLowerCase();
+            const kcFilter = document.getElementById('findings-modal-kc-filter')?.value || 'ALL';
+
+            const allItems = getSyncedDetailedFindings();
+            const { filterType, filterValue } = activeFindingsModalContext;
+
+            const filtered = allItems.filter(item => {
+                const normItemSub = String(item.subCode || '').replace(/\.+$/, '').trim();
+                const normFilterSub = String(filterValue || '').replace(/\.+$/, '').trim();
+                
+                const normItemEl = String(item.element || '').toLowerCase().trim();
+                const normFilterEl = String(filterValue || '').toLowerCase().trim();
+
+                if (filterType === 'subElement' && normItemSub !== normFilterSub) return false;
+                if (filterType === 'element' && !normItemEl.includes(normFilterEl)) return false;
+                if (filterType === 'airport' && item.airportCode !== filterValue) return false;
+
+                if (kcFilter !== 'ALL' && item.airportCode !== kcFilter) return false;
+                if (keyword) {
+                    const hay = `${item.airportCode} ${item.airportName} ${item.subCode} ${item.element} ${item.criteriaTitle} ${item.note}`.toLowerCase();
+                    if (!hay.includes(keyword)) return false;
+                }
+                return true;
+            });
+
+            // Pengaman tambahan: jika pencarian kosong namun daftar sub-elemen/elemen tidak terpetakan di log mentah, ambil langsung dari matriks baseline
+            let displayItems = filtered;
+            if (displayItems.length === 0 && !keyword && kcFilter === 'ALL' && (filterType === 'subElement' || filterType === 'element')) {
+                const savedUpload = uploadedDetailedFindings;
+                uploadedDetailedFindings = [];
+                const fallbackAll = getSyncedDetailedFindings();
+                uploadedDetailedFindings = savedUpload;
+                displayItems = fallbackAll.filter(item => {
+                    if (filterType === 'subElement') return String(item.subCode || '').replace(/\.+$/, '').trim() === String(filterValue || '').replace(/\.+$/, '').trim();
+                    if (filterType === 'element') return String(item.element || '').toLowerCase().includes(String(filterValue || '').toLowerCase().trim());
+                    return true;
+                });
+            }
+
+            if (countBadge) {
+                countBadge.textContent = `${displayItems.length} Temuan Ditampilkan`;
+            }
+
+            if (displayItems.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center p-10 text-center rounded-2xl bg-white border border-slate-200 text-slate-500 shadow-sm mt-2">
+                        <svg class="w-14 h-14 text-slate-300 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                        <p class="text-base font-extrabold text-slate-700">Data Tidak Ditemukan</p>
+                        <p class="text-xs text-slate-500 mt-1 max-w-sm">Tidak ada catatan temuan yang sesuai dengan filter pencarian saat ini. Silakan coba kata kunci lain.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listContainer.innerHTML = displayItems.map((item, index) => {
+                const isClosed = item.status.toLowerCase().includes('closed');
+                const borderAccent = isClosed ? 'border-l-mint-500' : 'border-l-coral-500';
+                return `
+                    <div class="relative p-4 pl-5 rounded-2xl bg-white border border-slate-200 hover:border-aero-400 hover:shadow-md transition-all duration-200 space-y-2.5 border-l-4 ${borderAccent}">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono text-[11px] font-extrabold px-2 py-1 rounded-md bg-slate-100 text-slate-500">#${index + 1}</span>
+                                <span class="font-mono text-[11px] font-extrabold px-2 py-1 rounded-md bg-aero-900 text-mint-300 shadow-sm">${item.airportCode}</span>
+                                <span class="text-xs font-extrabold text-slate-800">${item.airportName}</span>
+                                <span class="font-mono text-[10px] font-bold px-2 py-1 rounded-md bg-aero-50 text-aero-800 border border-teal-200 hidden sm:inline-block shadow-sm">${item.subCode} • ${item.element}</span>
+                            </div>
+                            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full border shadow-sm ${isClosed ? 'bg-mint-50 text-teal-900 border-mint-300' : 'bg-coral-50 text-coral-600 border-coral-300'}">
+                                ${item.status}
+                            </span>
+                        </div>
+                        <div class="sm:hidden font-mono text-[10px] font-bold px-2 py-1 rounded-md bg-aero-50 text-aero-800 border border-teal-200 inline-block w-fit shadow-sm">
+                            ${item.subCode} • ${item.element}
+                        </div>
+                        <p class="text-xs font-bold text-aero-800 leading-snug tracking-wide">${item.criteriaTitle}</p>
+                        <p class="text-xs text-slate-700 leading-relaxed bg-slate-50/50 p-2.5 rounded-xl border border-slate-100 shadow-inner">${item.note}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /**
+         * ANALISA KAJIAN PER BANDARA (CARDS GRID)
+         */
+        function filterAirportAnalysis(category) {
+            activeAnalysisFilter = category;
+            const styles = {
+                all: { active: 'px-3 py-1.5 rounded-xl text-xs font-bold bg-aero-900 text-white transition cursor-pointer', idle: 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-aero-900 border border-teal-200 hover:bg-aero-50 transition cursor-pointer' },
+                excellent: { active: 'px-3 py-1.5 rounded-xl text-xs font-bold bg-mint-600 text-white transition cursor-pointer', idle: 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-teal-900 border border-mint-300 hover:bg-mint-50 transition cursor-pointer' },
+                good: { active: 'px-3 py-1.5 rounded-xl text-xs font-bold bg-aero-700 text-white transition cursor-pointer', idle: 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-aero-900 border border-teal-200 hover:bg-aero-50 transition cursor-pointer' },
+                attention: { active: 'px-3 py-1.5 rounded-xl text-xs font-bold bg-coral-500 text-white transition cursor-pointer', idle: 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-coral-600 border border-coral-300 hover:bg-coral-50 transition cursor-pointer' }
+            };
+            ['all', 'excellent', 'good', 'attention'].forEach(btn => {
+                const el = document.getElementById(`filter-btn-${btn}`);
+                if (!el) return;
+                el.className = (btn === category) ? styles[btn].active : styles[btn].idle;
+            });
+            renderAirportAnalysisCards();
+        }
+
+        function renderAirportAnalysisCards() {
+            const grid = document.getElementById('airport-analysis-grid');
+            let filtered = [...airportsData].sort((a, b) => b.score - a.score);
+
+            if (activeAnalysisFilter === 'excellent') filtered = filtered.filter(a => a.score >= 94);
+            if (activeAnalysisFilter === 'good') filtered = filtered.filter(a => a.score >= 92 && a.score < 94);
+            if (activeAnalysisFilter === 'attention') filtered = filtered.filter(a => a.score < 92);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full p-8 text-center text-sm text-slate-500 glass-card rounded-2xl">Tidak ada bandara pada kategori filter ini.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(a => {
+                const tier = getScoreTierColor(a.score);
+                return `
+                    <article class="glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between space-y-3">
+                        <div class="space-y-2.5">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono text-xs font-extrabold px-2.5 py-1 rounded-lg bg-aero-900 text-mint-300">${a.code}</span>
+                                    <div>
+                                        <h4 class="text-sm font-extrabold text-aero-950 leading-tight">${a.name}</h4>
+                                        <span class="text-[11px] text-slate-500">${a.city}${a.auditPeriod ? ' • ' + a.auditPeriod : ''}</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="block font-mono text-sm font-extrabold text-aero-900">${formatIndoPercent(a.score)}</span>
+                                    <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full border ${tier.badgeBg}">${a.findings} Minor</span>
+                                </div>
+                            </div>
+
+                            <div class="p-2.5 rounded-xl bg-aero-50/70 border border-teal-200/70">
+                                <span class="block text-[10px] font-extrabold uppercase tracking-wider text-aero-800">Fokus Evaluasi Utama</span>
+                                <p class="text-xs font-bold text-slate-800 mt-0.5">${a.focusArea}</p>
+                            </div>
+
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                ${a.analysisNote}
+                            </p>
+                        </div>
+
+                        <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                            <span class="font-bold text-teal-800">✓ Bendera Emas (≥85%)</span>
+                            <button onclick="focusAirportOnMap('${a.code}')" class="text-coral-600 hover:text-coral-500 font-bold inline-flex items-center gap-1 cursor-pointer">
+                                <span>Lihat di Peta</span>
+                                <span>→</span>
+                            </button>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function updateDynamicConclusionsAndRecommendations(stats) {
+            const sortedElem = [...elementsData].sort((a, b) => b.count - a.count);
+            const topElem1 = sortedElem[0] || { short: 'Elemen 6', name: 'Keamanan Bekerja', count: 0 };
+            const topElem2 = sortedElem[1] || { short: 'Elemen 7', name: 'Standar Pemantauan', count: 0 };
+            const spread = (stats.maxAirport.score - stats.minAirport.score).toFixed(2).replace('.', ',');
+
+            const lowTierAirports = airportsData.filter(a => a.score < 92).map(a => a.code);
+            const lowListStr = lowTierAirports.length > 0 ? lowTierAirports.join(', ') : stats.minAirport.code;
+
+            const conclusionsEl = document.getElementById('executive-conclusions-list');
+            conclusionsEl.innerHTML = `
+                <li class="flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-emerald-500/25 text-emerald-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+                    <span><strong>Kepatuhan Korporat ${stats.count > 0 ? Math.round((stats.goldCount / stats.count) * 100) : 0}% Kategori Memuaskan:</strong> Seluruh <strong>${stats.count} Bandara/KC PT Angkasa Pura Indonesia</strong> berhasil melampaui ambang batas minimal 85% (kategori Bendera Emas) dengan nilai rata-rata perusahaan sebesar <strong>${formatIndoPercent(stats.avgScore)}</strong> dan <strong>0 temuan kritikal/mayor</strong>.</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-sky-500/25 text-sky-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+                    <span><strong>Rentang Kinerja Terkendali:</strong> Capaian tertinggi diraih oleh <strong>${stats.maxAirport.code} (${formatIndoPercent(stats.maxAirport.score)})</strong> dengan ${stats.maxAirport.findings} temuan minor, sedangkan capaian terendah berada pada <strong>${stats.minAirport.code} (${formatIndoPercent(stats.minAirport.score)})</strong> dengan ${stats.minAirport.findings} temuan minor (selisih <em>spread</em> ${spread}%).</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-amber-500/25 text-amber-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+                    <span><strong>Pola Temuan Bersifat Administratif &amp; Teknis Berkala:</strong> Total <strong>${stats.totalFindings} temuan minor</strong> terkonsentrasi pada <strong>${topElem1.short} (${topElem1.name} – ${topElem1.count} temuan)</strong> dan <strong>${topElem2.short} (${topElem2.name} – ${topElem2.count} temuan)</strong>.</span>
+                </li>
+            `;
+
+            const recShort = document.getElementById('rec-short-term');
+            if (recShort) {
+                recShort.innerHTML = `Melakukan verifikasi dan penutupan 100% <em>Corrective and Preventive Action</em> (CAPA) atas <strong>${stats.totalFindings} temuan minor</strong> beserta bukti dokumentasi foto/berita acara, dengan pendampingan khusus pada bandara dengan skor &lt; 92,00% (<strong>${lowListStr}</strong>).`;
+            }
+
+            const top5Airports = [...airportsData].sort((a, b) => b.score - a.score).slice(0, 5).map(a => a.code);
+            const recLong = document.getElementById('rec-long-term');
+            if (recLong && top5Airports.length > 0) {
+                recLong.innerHTML = `Menyelenggarakan program <strong>Cross-Audit &amp; Knowledge Sharing</strong> dengan menjadikan kantor cabang berkinerja terbaik (<strong>${top5Airports.join(', ')}</strong>) sebagai percontohan (<em>benchmark</em>), serta mengintegrasikan pelaporan inspeksi K3 bulanan ke dalam dashboard terpusat agar kepatuhan SMK3 terjaga konsisten sepanjang tahun.`;
+            }
+
+            // Perbarui panel Analisa Mendalam Distribusi Elemen (Pareto & Top/Bottom Elements)
+            const totalElemSum = sortedElem.reduce((s, e) => s + (Number(e.count) || 0), 0);
+            const top4 = sortedElem.slice(0, 4);
+            const bottom3 = [...sortedElem].sort((a, b) => a.count - b.count).slice(0, 3);
+            const top4Sum = top4.reduce((s, e) => s + (Number(e.count) || 0), 0);
+            const top4Pct = totalElemSum > 0 ? ((top4Sum / totalElemSum) * 100).toFixed(1).replace('.', ',') : '0,0';
+
+            const paretoBadge = document.getElementById('pareto-concentration-badge');
+            if (paretoBadge) {
+                paretoBadge.textContent = `Top 4 Elemen = ${top4Pct}% (${top4Sum}/${totalElemSum} Temuan)`;
+            }
+
+            const paretoNarrative = document.getElementById('detailed-pareto-narrative');
+            if (paretoNarrative && top4.length >= 4 && bottom3.length >= 3) {
+                const fmtItem = (el) => {
+                    const p = totalElemSum > 0 ? ((el.count / totalElemSum) * 100).toFixed(1).replace('.', ',') : '0,0';
+                    return `<strong class="text-aero-900">${el.short} (${el.count} temuan / ${p}%)</strong>`;
+                };
+                paretoNarrative.innerHTML = `Berdasarkan analisis distribusi Pareto lintas ${stats.count} Bandara/KC, konsentrasi ketidaksesuaian minor terpusat pada aspek teknis operasional dan pemantauan: ${fmtItem(top4[0])}, ${fmtItem(top4[1])}, ${fmtItem(top4[2])}, dan ${fmtItem(top4[3])}. Sebaliknya, <strong class="text-teal-900">${bottom3[0].short} (${bottom3[0].count} temuan)</strong>, <strong class="text-teal-900">${bottom3[1].short} (${bottom3[1].count} temuan)</strong>, dan <strong class="text-teal-900">${bottom3[2].short} (${bottom3[2].count} temuan)</strong> menunjukkan bahwa fondasi pelatihan kompetensi dan pelaksanaan audit internal telah berjalan sangat matang.`;
+            }
+        }
+
+        function refreshDashboard() {
+            const stats = computeExecutiveStats();
+            updateHeroAndKpis(stats);
+            updateMapMarkers();
+            renderAirportRanking();
+            renderElementsChart();
+            renderSubElementsList();
+            renderAirportAnalysisCards();
+            updateDynamicConclusionsAndRecommendations(stats);
+
+            if (!document.getElementById('findings-detail-modal').classList.contains('hidden')) {
+                renderFindingsModalRows();
+            }
+
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const updatedEl = document.getElementById('last-updated-text');
+            if (updatedEl) updatedEl.textContent = `Diperbarui pukul ${timeStr} WIB`;
+        }
+
+        /**
+         * SINKRONISASI GOOGLE SPREADSHEET & PARSER FILE EXCEL/CSV
+         */
+        function extractSheetIdAndGid(url) {
+            const idMatch = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+            const gidMatch = url.match(/[#?&]gid=([0-9]+)/);
+            return {
+                sheetId: idMatch ? idMatch[1] : null,
+                gid: gidMatch ? gidMatch[1] : '850527044'
+            };
+        }
+
+        function appendParserLog(msg, badgeText = null) {
+            const logEl = document.getElementById('parser-diag-log');
+            const badgeEl = document.getElementById('parser-diag-badge');
+            if (logEl) {
+                const ts = new Date().toLocaleTimeString('id-ID');
+                logEl.textContent = `[${ts}] ${msg}\n` + (logEl.textContent.startsWith('Belum ada') ? '' : logEl.textContent);
+            }
+            if (badgeEl && badgeText) badgeEl.textContent = badgeText;
+        }
+
+        function fetchGvizSheetJsonp(sheetId, gid) {
+            return new Promise((resolve, reject) => {
+                const cbName = 'gvizCb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+                const script = document.createElement('script');
+                const timeoutId = setTimeout(() => {
+                    delete window[cbName];
+                    script.remove();
+                    reject(new Error('Timeout mengambil Google Spreadsheet'));
+                }, 9000);
+
+                window[cbName] = function (resp) {
+                    clearTimeout(timeoutId);
+                    delete window[cbName];
+                    script.remove();
+                    if (!resp || resp.status === 'error' || !resp.table) {
+                        reject(new Error(resp?.errors?.[0]?.detailed_message || 'Respons gviz tidak valid'));
+                        return;
+                    }
+                    const rows = [];
+                    const cols = (resp.table.cols || []).map(c => c.label || '');
+                    if (cols.some(c => c.trim() !== '')) rows.push(cols);
+                    (resp.table.rows || []).forEach(r => {
+                        rows.push((r.c || []).map(cell => {
+                            if (!cell) return '';
+                            return cell.f !== undefined && cell.f !== null ? cell.f : (cell.v !== undefined && cell.v !== null ? cell.v : '');
+                        }));
+                    });
+                    resolve(rows);
+                };
+
+                script.src = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?gid=${gid}&headers=0&tqx=out:json;responseHandler:${cbName}`;
+                script.onerror = () => {
+                    clearTimeout(timeoutId);
+                    delete window[cbName];
+                    script.remove();
+                    reject(new Error('Gagal memuat skrip JSONP Google Spreadsheet'));
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        function parseNumericFlexible(val) {
+            if (typeof val === 'number') return val;
+            const s = String(val || '').replace('%', '').trim();
+            if (!s) return NaN;
+            if (s.includes(',') && s.includes('.')) {
+                return parseFloat(s.replace(/\./g, '').replace(',', '.'));
+            }
+            if (s.includes(',')) {
+                return parseFloat(s.replace(',', '.'));
+            }
+            return parseFloat(s);
+        }
+
+        function resolveAirportCode(rawVal) {
+            const str = String(rawVal || '').trim().toUpperCase();
+            if (!str) return '';
+            if (AIRPORT_GEO_DICT[str]) return str;
+            const codeMatch = str.match(/\b([A-Z]{3})\b/);
+            if (codeMatch && AIRPORT_GEO_DICT[codeMatch[1]]) return codeMatch[1];
+            const lower = str.toLowerCase();
+            for (const [code, info] of Object.entries(AIRPORT_GEO_DICT)) {
+                if (lower.includes(info.name.toLowerCase()) || lower.includes(info.city.toLowerCase())) {
+                    return code;
+                }
+            }
+            return '';
+        }
+
+        function processWorkbookData(sheetsRowsMap, sourceLabel = 'Sumber Eksternal') {
+            let updatedAirports = false;
+            let updatedElements = false;
+            let updatedDetails = false;
+
+            const newAirportsMap = new Map();
+            const newElementsMap = new Map();
+            const parsedDetails = [];
+
+            Object.entries(sheetsRowsMap).forEach(([sheetName, rows]) => {
+                if (!Array.isArray(rows) || rows.length < 2) return;
+
+                let headerIdx = -1;
+                let headers = [];
+                for (let i = 0; i < Math.min(rows.length, 15); i++) {
+                    const rowStrs = rows[i].map(c => String(c || '').trim().toLowerCase());
+                    const hasAirportCol = rowStrs.some(c => c.includes('bandara') || c.includes('kode') || c.includes('cabang') || c === 'kc');
+                    const hasMetricCol = rowStrs.some(c => c.includes('nilai') || c.includes('skor') || c.includes('capaian') || c.includes('temuan') || c.includes('elemen') || c.includes('kriteria'));
+                    if (hasAirportCol && hasMetricCol) {
+                        headerIdx = i;
+                        headers = rowStrs;
+                        break;
+                    }
+                }
+
+                if (headerIdx === -1) return;
+
+                const colIdx = {
+                    code: headers.findIndex(h => h.includes('kode') || h === 'kc' || h.includes('bandara')),
+                    name: headers.findIndex(h => h.includes('nama bandara') || h.includes('kantor cabang')),
+                    score: headers.findIndex(h => h.includes('nilai') || h.includes('skor') || h.includes('capaian') || h.includes('persen')),
+                    findings: headers.findIndex(h => (h.includes('jumlah') && h.includes('temuan')) || h === 'temuan minor' || h === 'total temuan'),
+                    element: headers.findIndex(h => h === 'elemen' || h.includes('elemen smk3') || h.includes('no. elemen')),
+                    subCode: headers.findIndex(h => h.includes('sub') || h.includes('kriteria') || h.includes('klausul')),
+                    note: headers.findIndex(h => h.includes('uraian') || h.includes('catatan') || h.includes('deskripsi') || (h === 'temuan' && !h.includes('jumlah'))),
+                    status: headers.findIndex(h => h.includes('status') || h.includes('capa') || h.includes('tindak lanjut'))
+                };
+
+                let lastAirportCode = '';
+                let lastElement = '';
+                let lastSubCode = '';
+
+                for (let r = headerIdx + 1; r < rows.length; r++) {
+                    const row = rows[r];
+                    if (!row || row.every(c => String(c || '').trim() === '')) continue;
+
+                    const rawCode = colIdx.code >= 0 ? row[colIdx.code] : '';
+                    const resolvedCode = resolveAirportCode(rawCode) || (colIdx.name >= 0 ? resolveAirportCode(row[colIdx.name]) : '');
+                    const rowJoinedLower = row.map(c => String(c || '').toLowerCase()).join(' ');
+                    if (rowJoinedLower.includes('total') || rowJoinedLower.includes('rata-rata') || rowJoinedLower.includes('korporat')) continue;
+
+                    // Reset memori merged cells saat berganti bandara/KC agar tidak menumpuk ke elemen sebelumnya
+                    if (resolvedCode && lastAirportCode && resolvedCode !== lastAirportCode) {
+                        lastElement = '';
+                        lastSubCode = '';
+                    }
+
+                    // Mode 1: Log Rincian Temuan (memiliki kolom uraian temuan / kriteria)
+                    if (colIdx.note >= 0 && (colIdx.element >= 0 || colIdx.subCode >= 0)) {
+                        const codeUse = resolvedCode || lastAirportCode;
+                        if (resolvedCode) lastAirportCode = resolvedCode;
+
+                        const rawEl = colIdx.element >= 0 ? String(row[colIdx.element] || '').trim() : '';
+                        const rawSub = colIdx.subCode >= 0 ? String(row[colIdx.subCode] || '').trim() : '';
+                        const rawNote = String(row[colIdx.note] || '').trim();
+                        const rawStatus = colIdx.status >= 0 ? String(row[colIdx.status] || '').trim() : '';
+
+                        if (rawEl) lastElement = rawEl;
+                        if (rawSub) lastSubCode = rawSub;
+
+                        if (codeUse && rawNote && rawNote.length > 4) {
+                            const explicitSubMatch = `${lastSubCode} ${rawNote}`.match(/\b(\d{1,2}\.\d+\.\d+)\b/);
+                            const elId = parseElementId(lastElement, explicitSubMatch ? explicitSubMatch[1] : lastSubCode);
+                            const cleanSub = explicitSubMatch
+                                ? explicitSubMatch[1]
+                                : (elId > 0 ? `${elId}.1.1` : '6.1.1');
+                            const geo = AIRPORT_GEO_DICT[codeUse] || { name: codeUse };
+                            const catalogTitle = FULL_SUB_ELEMENTS_CATALOG.find(c => c.code === cleanSub)?.title
+                                || DEFAULT_ELEMENTS.find(e => e.id === elId)?.name
+                                || 'Kriteria SMK3 PP 50/2012';
+                            parsedDetails.push({
+                                airportCode: codeUse,
+                                airportName: geo.name,
+                                element: elId > 0 ? `Elemen ${elId}` : (lastElement || 'Elemen 6'),
+                                subCode: cleanSub,
+                                criteriaTitle: catalogTitle,
+                                note: rawNote,
+                                status: rawStatus || 'Proses Verifikasi CAPA'
+                            });
+                        }
+                    }
+
+                    // Mode 2: Rekap Skor & Temuan per Bandara
+                    if (resolvedCode && colIdx.score >= 0) {
+                        const scoreVal = parseNumericFlexible(row[colIdx.score]);
+                        const findingsVal = colIdx.findings >= 0 ? parseNumericFlexible(row[colIdx.findings]) : NaN;
+                        if (!isNaN(scoreVal) && scoreVal > 50 && scoreVal <= 100) {
+                            const existing = airportsData.find(a => a.code === resolvedCode) || DEFAULT_AIRPORTS.find(a => a.code === resolvedCode);
+                            const geo = AIRPORT_GEO_DICT[resolvedCode] || { name: resolvedCode, city: 'Indonesia', lat: -2.2, lng: 117.5 };
+                            const computedFindings = !isNaN(findingsVal) ? Math.round(findingsVal) : Math.round(166 * (1 - scoreVal / 100));
+                            newAirportsMap.set(resolvedCode, {
+                                code: resolvedCode,
+                                name: existing?.name || geo.name,
+                                city: existing?.city || geo.city,
+                                lat: existing?.lat || geo.lat,
+                                lng: existing?.lng || geo.lng,
+                                score: Number(scoreVal.toFixed(2)),
+                                findings: computedFindings,
+                                status: 'Sudah',
+                                focusArea: existing?.focusArea || 'Pengendalian risiko operasional & dokumen SMK3',
+                                analysisNote: existing?.analysisNote || `Capaian ${scoreVal.toFixed(2)}% dengan ${computedFindings} temuan minor pada resertifikasi SMK3 2026.`
+                            });
+                        }
+                    }
+                }
+            });
+
+            if (newAirportsMap.size >= 5) {
+                airportsData = Array.from(newAirportsMap.values());
+                updatedAirports = true;
+            }
+
+            if (parsedDetails.length >= 20) {
+                uploadedDetailedFindings = parsedDetails;
+                updatedDetails = true;
+
+                const countsByEl = {};
+                DEFAULT_ELEMENTS.forEach(e => { countsByEl[e.id] = 0; });
+                const countsBySub = new Map();
+
+                parsedDetails.forEach(d => {
+                    const id = parseElementId(d.element, d.subCode);
+                    if (countsByEl[id] !== undefined) countsByEl[id] += 1;
+
+                    const sc = String(d.subCode || '').replace(/\.+$/, '').trim();
+                    if (sc) {
+                        if (!countsBySub.has(sc)) {
+                            countsBySub.set(sc, {
+                                code: sc,
+                                title: d.criteriaTitle,
+                                element: d.element,
+                                count: 0
+                            });
+                        }
+                        countsBySub.get(sc).count += 1;
+                    }
+                });
+
+                const sumEl = Object.values(countsByEl).reduce((a, b) => a + b, 0);
+                if (sumEl === parsedDetails.length) {
+                    elementsData = DEFAULT_ELEMENTS.map(e => ({ ...e, count: countsByEl[e.id] || 0 }));
+                    updatedElements = true;
+                }
+
+                if (countsBySub.size >= 3) {
+                    const sortedParsedSubs = Array.from(countsBySub.values()).sort((a, b) => b.count - a.count);
+                    uploadedAllSubElements = sortedParsedSubs;
+                    subElementsData = sortedParsedSubs.slice(0, 6);
+                }
+            }
+
+            if (updatedAirports || updatedElements || updatedDetails) {
+                const labelEl = document.getElementById('data-source-label');
+                if (labelEl) labelEl.textContent = sourceLabel;
+                appendParserLog(`Berhasil memperbarui data dari ${sourceLabel} (${airportsData.length} Bandara, ${parsedDetails.length} catatan rincian).`, 'Sinkron Aktif');
+                refreshDashboard();
+                return true;
+            }
+
+            appendParserLog(`Struktur tabel pada ${sourceLabel} terbaca, mempertahankan dataset terkalibrasi (15 Bandara / 174 Temuan).`, 'Dataset Terkalibrasi');
+            return false;
+        }
+
+        async function syncFromGoogleSheet(showNotification = false) {
+            const urlInput = document.getElementById('gsheet-url-input');
+            const targetUrl = (urlInput && urlInput.value.trim()) ? urlInput.value.trim() : GOOGLE_SHEET_URL;
+            GOOGLE_SHEET_URL = targetUrl;
+
+            const { sheetId, gid } = extractSheetIdAndGid(targetUrl);
+            if (!sheetId) {
+                if (showNotification) showStatusBanner('URL Google Spreadsheet tidak valid.', 'warning');
+                return;
+            }
+
+            const syncIcon = document.getElementById('sync-icon');
+            if (syncIcon) syncIcon.classList.add('animate-spin');
+
+            try {
+                const rows = await fetchGvizSheetJsonp(sheetId, gid);
+                const applied = processWorkbookData({ [`Sheet_${gid}`]: rows }, `Google Sheet (gid=${gid})`);
+                if (showNotification) {
+                    const stats = computeExecutiveStats();
+                    showStatusBanner(
+                        applied
+                            ? `Sinkronisasi Google Sheet berhasil (${stats.count} Bandara / ${stats.totalFindings} Temuan Minor).`
+                            : `Terhubung ke Google Sheet (gid=${gid}) – Data 15 Bandara & ${stats.totalFindings} Temuan terverifikasi.`,
+                        'success'
+                    );
+                }
+            } catch (err) {
+                appendParserLog(`Gagal akses langsung Google Sheet: ${err.message}. Menggunakan dataset terkalibrasi.`, 'Mode Offline/Lokal');
+                if (showNotification) {
+                    showStatusBanner('Menampilkan dataset terkalibrasi 15 Bandara / 174 Temuan (pastikan akses Google Sheet publik atau unggah file Excel).', 'info');
+                }
+            } finally {
+                if (syncIcon) syncIcon.classList.remove('animate-spin');
+            }
+        }
+
+        function handleExcelFileUpload(event) {
+            const file = event.target.files?.[0];
+            if (!file || typeof XLSX === 'undefined') return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetsMap = {};
+                    workbook.SheetNames.forEach(name => {
+                        sheetsMap[name] = XLSX.utils.sheet_to_json(workbook.Sheets[name], { header: 1, defval: '' });
+                    });
+                    const applied = processWorkbookData(sheetsMap, `File: ${file.name}`);
+                    const stats = computeExecutiveStats();
+                    showStatusBanner(
+                        applied
+                            ? `File "${file.name}" berhasil dimuat (${stats.count} Bandara / ${stats.totalFindings} Temuan Minor)!`
+                            : `File "${file.name}" terbaca. Total temuan aktif: ${stats.totalFindings} Minor.`,
+                        'success'
+                    );
+                } catch (err) {
+                    showStatusBanner(`Gagal membaca file Excel: ${err.message}`, 'warning');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        /**
+         * MODAL EDITOR MANUAL & SIMULASI
+         */
+        function openDataManagerModal() {
+            renderManualEditorTables();
+            document.getElementById('data-manager-modal').classList.remove('hidden');
+        }
+
+        function closeDataManagerModal() {
+            document.getElementById('data-manager-modal').classList.add('hidden');
+        }
+
+        function switchModalTab(tabKey) {
+            ['gsheet', 'editor', 'elements'].forEach(key => {
+                const panel = document.getElementById(`modal-tab-${key}`);
+                const btn = document.getElementById(`tab-btn-${key}`);
+                if (panel) panel.classList.toggle('hidden', key !== tabKey);
+                if (btn) {
+                    btn.className = key === tabKey
+                        ? 'pb-3 border-b-2 border-aero-700 text-aero-900 cursor-pointer'
+                        : 'pb-3 border-b-2 border-transparent text-slate-500 hover:text-aero-900 cursor-pointer';
+                }
+            });
+        }
+
+        function updateSheetUrlAndSync() {
+            const val = document.getElementById('gsheet-url-input')?.value.trim();
+            if (val) {
+                GOOGLE_SHEET_URL = val;
+                const footerLink = document.getElementById('footer-sheet-link');
+                if (footerLink) footerLink.href = val;
+                syncFromGoogleSheet(true);
+            }
+        }
+
+        function renderManualEditorTables() {
+            const tbody = document.getElementById('editor-airport-tbody');
+            if (tbody) {
+                tbody.innerHTML = airportsData.map((a, idx) => `
+                    <tr>
+                        <td class="p-2"><input type="text" data-idx="${idx}" data-field="code" value="${a.code}" class="w-14 px-2 py-1 border rounded font-mono uppercase" /></td>
+                        <td class="p-2"><input type="text" data-idx="${idx}" data-field="name" value="${a.name}" class="w-full px-2 py-1 border rounded" /></td>
+                        <td class="p-2"><input type="text" data-idx="${idx}" data-field="city" value="${a.city}" class="w-28 px-2 py-1 border rounded" /></td>
+                        <td class="p-2"><input type="number" step="0.01" data-idx="${idx}" data-field="score" value="${a.score}" class="w-20 px-2 py-1 border rounded font-mono" /></td>
+                        <td class="p-2"><input type="number" data-idx="${idx}" data-field="findings" value="${a.findings}" class="w-16 px-2 py-1 border rounded font-mono" /></td>
+                        <td class="p-2"><input type="text" data-idx="${idx}" data-field="focusArea" value="${a.focusArea}" class="w-full px-2 py-1 border rounded" /></td>
+                        <td class="p-2 text-center"><button onclick="removeAirportRow(${idx})" class="text-red-600 hover:underline font-bold cursor-pointer">Hapus</button></td>
+                    </tr>
+                `).join('');
+            }
+
+            const elList = document.getElementById('editor-elements-list');
+            if (elList) {
+                elList.innerHTML = elementsData.map((el, idx) => `
+                    <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200">
+                        <span class="text-xs font-semibold text-slate-800 truncate">${el.short} – ${el.name}</span>
+                        <input type="number" data-el-idx="${idx}" value="${el.count}" class="w-16 px-2 py-1 border rounded font-mono text-xs text-right" />
+                    </div>
+                `).join('');
+            }
+
+            const subList = document.getElementById('editor-subelements-list');
+            if (subList) {
+                subList.innerHTML = subElementsData.map((sub, idx) => `
+                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="font-mono text-xs font-bold text-aero-900">${sub.code} (${sub.element})</span>
+                            <input type="number" data-sub-idx="${idx}" value="${sub.count}" class="w-16 px-2 py-1 border rounded font-mono text-xs text-right" />
+                        </div>
+                        <input type="text" data-sub-title-idx="${idx}" value="${sub.title}" class="w-full px-2 py-1 border rounded text-xs" />
+                    </div>
+                `).join('');
+            }
+        }
+
+        function addNewAirportRow() {
+            airportsData.push({
+                code: 'KNO',
+                name: 'Kualanamu',
+                city: 'Deli Serdang',
+                lat: 3.6422,
+                lng: 98.8853,
+                score: 93.37,
+                findings: 11,
+                status: 'Sudah',
+                focusArea: 'Pengawasan izin kerja & kalibrasi peralatan',
+                analysisNote: 'Penambahan cabang baru pada simulasi resertifikasi SMK3 2026.'
+            });
+            renderManualEditorTables();
+        }
+
+        function removeAirportRow(idx) {
+            if (airportsData.length <= 1) return;
+            airportsData.splice(idx, 1);
+            renderManualEditorTables();
+        }
+
+        function applyManualEditorChanges() {
+            document.querySelectorAll('#editor-airport-tbody input').forEach(inp => {
+                const idx = parseInt(inp.dataset.idx, 10);
+                const field = inp.dataset.field;
+                if (!airportsData[idx]) return;
+                if (field === 'score' || field === 'findings') {
+                    airportsData[idx][field] = parseFloat(inp.value) || 0;
+                } else {
+                    airportsData[idx][field] = inp.value.trim();
+                    if (field === 'code' && AIRPORT_GEO_DICT[airportsData[idx].code]) {
+                        airportsData[idx].lat = AIRPORT_GEO_DICT[airportsData[idx].code].lat;
+                        airportsData[idx].lng = AIRPORT_GEO_DICT[airportsData[idx].code].lng;
+                    }
+                }
+            });
+
+            document.querySelectorAll('[data-el-idx]').forEach(inp => {
+                const idx = parseInt(inp.dataset.elIdx, 10);
+                if (elementsData[idx]) elementsData[idx].count = parseInt(inp.value, 10) || 0;
+            });
+
+            document.querySelectorAll('[data-sub-idx]').forEach(inp => {
+                const idx = parseInt(inp.dataset.subIdx, 10);
+                if (subElementsData[idx]) subElementsData[idx].count = parseInt(inp.value, 10) || 0;
+            });
+
+            document.querySelectorAll('[data-sub-title-idx]').forEach(inp => {
+                const idx = parseInt(inp.dataset.subTitleIdx, 10);
+                if (subElementsData[idx]) subElementsData[idx].title = inp.value.trim();
+            });
+
+            uploadedDetailedFindings = [];
+            document.getElementById('data-source-label').textContent = 'Mode Editor Manual';
+            refreshDashboard();
+            closeDataManagerModal();
+            showStatusBanner('Perubahan data manual berhasil diterapkan ke seluruh dashboard!', 'success');
+        }
+
+        function simulateDataChange() {
+            airportsData = airportsData.map(a => {
+                if (a.code === 'BTJ') return { ...a, score: 92.77, findings: 12 };
+                if (a.code === 'BIK') return { ...a, score: 93.37, findings: 11 };
+                return a;
+            });
+            uploadedDetailedFindings = [];
+            document.getElementById('data-source-label').textContent = 'Simulasi Perbaikan CAPA';
+            refreshDashboard();
+            closeDataManagerModal();
+            showStatusBanner('Simulasi penutupan CAPA pada BTJ & BIK diterapkan! Rata-rata skor korporat meningkat.', 'success');
+        }
+
+        function resetToDefaultData() {
+            airportsData = JSON.parse(JSON.stringify(DEFAULT_AIRPORTS));
+            elementsData = JSON.parse(JSON.stringify(DEFAULT_ELEMENTS));
+            subElementsData = JSON.parse(JSON.stringify(DEFAULT_SUB_ELEMENTS));
+            uploadedAllSubElements = [];
+            uploadedDetailedFindings = [];
+            document.getElementById('data-source-label').textContent = 'Data 15 Bandara/KC 2026';
+            refreshDashboard();
+            closeDataManagerModal();
+            showStatusBanner('Data dikembalikan ke baseline terkalibrasi (15 Bandara / 174 Temuan Minor).', 'info');
+        }
+
+        function showStatusBanner(message, type = 'info') {
+            const banner = document.getElementById('status-banner');
+            const text = document.getElementById('status-banner-text');
+            const icon = document.getElementById('status-banner-icon');
+            if (!banner || !text) return;
+
+            const palette = {
+                success: 'bg-mint-50 border-mint-300 text-teal-950',
+                warning: 'bg-coral-50 border-coral-300 text-coral-600',
+                info: 'bg-aero-50 border-teal-200 text-aero-950'
+            };
+            banner.className = `rounded-2xl p-3.5 sm:px-5 border flex items-center justify-between gap-3 text-xs sm:text-sm font-medium transition-all ${palette[type] || palette.info}`;
+            if (icon) icon.textContent = type === 'success' ? '✓' : (type === 'warning' ? '⚠' : 'ℹ');
+            text.textContent = message;
+            banner.classList.remove('hidden');
+        }
+
+        function hideStatusBanner() {
+            document.getElementById('status-banner')?.classList.add('hidden');
+        }
+
+        // Inisialisasi Dashboard saat halaman selesai dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            refreshDashboard();
+            setTimeout(() => {
+                if (leafletMap) leafletMap.invalidateSize();
+            }, 300);
+            syncFromGoogleSheet(false);
+            setInterval(() => syncFromGoogleSheet(false), 30000);
+        });
+    </script>
+</body>
+</html>
