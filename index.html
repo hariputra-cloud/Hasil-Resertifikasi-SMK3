@@ -1121,7 +1121,7 @@
 
         function parseElementId(elemText, subCodeText = '') {
             const subStr = String(subCodeText || '').trim();
-            const subMatch = subStr.match(/^(\d{1,2})(?:\.\d+)+/);
+            const subMatch = subStr.match(/^([1-9]|1[0-2])(?:\.\d+)+/);
             if (subMatch) {
                 const id = parseInt(subMatch[1], 10);
                 if (id >= 1 && id <= 12) return id;
@@ -2637,10 +2637,14 @@
                         if (rawSub) lastSubCode = rawSub;
 
                         if (codeUse && rawNote && rawNote.length > 4) {
-                            const explicitSubMatch = `${lastSubCode} ${rawNote}`.match(/\b(\d{1,2}\.\d+\.\d+)\b/);
-                            const elId = parseElementId(lastElement, explicitSubMatch ? explicitSubMatch[1] : lastSubCode);
-                            const cleanSub = explicitSubMatch
-                                ? explicitSubMatch[1]
+                            let explicitSubMatch = `${lastElement} ${lastSubCode}`.match(/(?:^|\s|\()([1-9]|1[0-2])\.\d+\.\d+\b/);
+                            if (!explicitSubMatch) {
+                                explicitSubMatch = rawNote.match(/(?:^|\s|\()([1-9]|1[0-2])\.\d+\.\d+\b/);
+                            }
+                            const matchStr = explicitSubMatch ? explicitSubMatch[0].trim().replace(/^\(/, '') : '';
+                            const elId = parseElementId(lastElement, matchStr || lastSubCode);
+                            const cleanSub = matchStr
+                                ? matchStr
                                 : (elId > 0 ? `${elId}.1.1` : '6.1.1');
                             const geo = AIRPORT_GEO_DICT[codeUse] || { name: codeUse };
                             const catalogTitle = FULL_SUB_ELEMENTS_CATALOG.find(c => c.code === cleanSub)?.title
