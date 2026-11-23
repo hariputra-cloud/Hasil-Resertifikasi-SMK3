@@ -1079,6 +1079,8 @@
             { code: '3.1.1', title: 'Identifikasi Bahaya pada Tahap Perancangan & Modifikasi Fasilitas', element: 'Elemen 3', count: 5 },
             { code: '5.2.1', title: 'Verifikasi & Pemeriksaan Kelayakan K3 Barang / Peralatan Masuk', element: 'Elemen 5', count: 5 },
             { code: '6.2.1', title: 'Pengawasan & Penunjukan Petugas K3 pada Area Berisiko Tinggi', element: 'Elemen 6', count: 5 },
+            { code: '6.5.6', title: 'Prosedur Permintaan Pemeliharaan Sarana & Peralatan Produksi dengan Kondisi K3 Tidak Memenuhi Syarat', element: 'Elemen 6', count: 0 },
+            { code: '6.1.7', title: 'Kelayakan Pakai Alat Pelindung Diri (APD) Sesuai Standar & Peraturan Perundang-undangan', element: 'Elemen 6', count: 0 },
             { code: '3.2.1', title: 'Peninjauan Ulang Kontrak Kerja Sama & Persyaratan K3 Vendor', element: 'Elemen 3', count: 4 },
             { code: '8.1.1', title: 'Mekanisme Pelaporan Bahaya & Tindak Lanjut Keluhan K3 Pegawai', element: 'Elemen 8', count: 4 },
             { code: '11.1.1', title: 'Pelaksanaan Audit Internal SMK3 Terjadwal & Kompetensi Auditor', element: 'Elemen 11', count: 4 },
@@ -1129,6 +1131,12 @@
 
             const str = String(elemText || '').trim();
             if (!str) return 0;
+
+            const leadingSubMatch = str.match(/^([1-9]|1[0-2])(?:\.\d+)+/);
+            if (leadingSubMatch) {
+                const id = parseInt(leadingSubMatch[1], 10);
+                if (id >= 1 && id <= 12) return id;
+            }
 
             const explicitElemMatch = str.match(/elemen\s*(?:ke[-\s]*)?(\d{1,2})\b/i);
             if (explicitElemMatch) {
@@ -1397,7 +1405,9 @@
             try {
                 const stats = computeExecutiveStats();
                 const { sortedAirports, elemAirportMatrix, subAirportMatrix, fullSubElementsList } = buildCorporateMatrixData();
-                const allDetails = getSyncedDetailedFindings();
+                const allDetails = (uploadedDetailedFindings && uploadedDetailedFindings.length >= 20)
+                    ? uploadedDetailedFindings.map((item, idx) => ({ ...item, id: idx + 1 }))
+                    : getSyncedDetailedFindings();
                 const wb = XLSX.utils.book_new();
                 const airportCodes = sortedAirports.map(a => a.code);
                 const rankedAirports = [...airportsData].sort((a, b) => b.score - a.score || a.findings - b.findings);
@@ -2158,9 +2168,8 @@
          */
         function getSyncedDetailedFindings() {
             const { sortedAirports, subAirportMatrix, fullSubElementsList } = buildCorporateMatrixData();
-            const totalMatrixTarget = fullSubElementsList.reduce((s, item) => s + (Number(item.count) || 0), 0);
 
-            if (uploadedDetailedFindings && uploadedDetailedFindings.length > 0 && uploadedDetailedFindings.length === totalMatrixTarget) {
+            if (uploadedDetailedFindings && uploadedDetailedFindings.length >= 20) {
                 return uploadedDetailedFindings.map((item, idx) => ({ ...item, id: idx + 1 }));
             }
 
@@ -2599,7 +2608,8 @@
                     score: headers.findIndex(h => h.includes('nilai') || h.includes('skor') || h.includes('capaian') || h.includes('persen')),
                     findings: headers.findIndex(h => (h.includes('jumlah') && h.includes('temuan')) || h === 'temuan minor' || h === 'total temuan'),
                     element: headers.findIndex(h => h === 'elemen' || h.includes('elemen smk3') || h.includes('no. elemen')),
-                    subCode: headers.findIndex(h => h.includes('sub') || h.includes('kriteria') || h.includes('klausul')),
+                    subCode: headers.findIndex(h => h.includes('kode kriteria') || h.includes('no kriteria') || h.includes('sub') || h.includes('klausul')),
+                    criteriaText: headers.findIndex(h => h === 'kriteria' || h.includes('judul kriteria') || h.includes('uraian kriteria')),
                     note: headers.findIndex(h => h.includes('uraian') || h.includes('catatan') || h.includes('deskripsi') || (h === 'temuan' && !h.includes('jumlah'))),
                     status: headers.findIndex(h => h.includes('status') || h.includes('capa') || h.includes('tindak lanjut'))
                 };
@@ -2607,6 +2617,7 @@
                 let lastAirportCode = '';
                 let lastElement = '';
                 let lastSubCode = '';
+                let lastCriteriaText = '';
 
                 for (let r = headerIdx + 1; r < rows.length; r++) {
                     const row = rows[r];
@@ -2621,35 +2632,47 @@
                     if (resolvedCode && lastAirportCode && resolvedCode !== lastAirportCode) {
                         lastElement = '';
                         lastSubCode = '';
+                        lastCriteriaText = '';
                     }
 
                     // Mode 1: Log Rincian Temuan (memiliki kolom uraian temuan / kriteria)
-                    if (colIdx.note >= 0 && (colIdx.element >= 0 || colIdx.subCode >= 0)) {
+                    if (colIdx.note >= 0 && (colIdx.element >= 0 || colIdx.subCode >= 0 || colIdx.criteriaText >= 0)) {
                         const codeUse = resolvedCode || lastAirportCode;
                         if (resolvedCode) lastAirportCode = resolvedCode;
 
                         const rawEl = colIdx.element >= 0 ? String(row[colIdx.element] || '').trim() : '';
                         const rawSub = colIdx.subCode >= 0 ? String(row[colIdx.subCode] || '').trim() : '';
+                        const rawCritText = colIdx.criteriaText >= 0 ? String(row[colIdx.criteriaText] || '').trim() : '';
                         const rawNote = String(row[colIdx.note] || '').trim();
                         const rawStatus = colIdx.status >= 0 ? String(row[colIdx.status] || '').trim() : '';
 
                         if (rawEl) lastElement = rawEl;
                         if (rawSub) lastSubCode = rawSub;
+                        if (rawCritText) lastCriteriaText = rawCritText;
 
                         if (codeUse && rawNote && rawNote.length > 4) {
-                            let explicitSubMatch = `${lastElement} ${lastSubCode}`.match(/(?:^|\s|\()([1-9]|1[0-2])\.\d+\.\d+\b/);
+                            // 1. Prioritaskan kode kriteria/sub-elemen langsung dari kolom Elemen atau Sub-Elemen (mis. "6.5.6")
+                            let explicitSubMatch = `${lastElement} ${lastSubCode}`.match(/(?<![A-Za-z0-9./-])([1-9]|1[0-2])\.\d+(?:\.\d+)?(?![.\d])/);
+                            // 2. Jika belum ditemukan di kolom Elemen/Sub, cari pada teks Kriteria atau Uraian (abaikan nomor dokumen seperti PNK.03.01.09)
                             if (!explicitSubMatch) {
-                                explicitSubMatch = rawNote.match(/(?:^|\s|\()([1-9]|1[0-2])\.\d+\.\d+\b/);
+                                explicitSubMatch = `${lastCriteriaText} ${rawNote}`.match(/(?<![A-Za-z0-9./-])([1-9]|1[0-2])\.\d+\.\d+(?![.\d])/);
                             }
-                            const matchStr = explicitSubMatch ? explicitSubMatch[0].trim().replace(/^\(/, '') : '';
+                            const matchStr = explicitSubMatch ? explicitSubMatch[0].trim() : '';
                             const elId = parseElementId(lastElement, matchStr || lastSubCode);
                             const cleanSub = matchStr
                                 ? matchStr
                                 : (elId > 0 ? `${elId}.1.1` : '6.1.1');
                             const geo = AIRPORT_GEO_DICT[codeUse] || { name: codeUse };
-                            const catalogTitle = FULL_SUB_ELEMENTS_CATALOG.find(c => c.code === cleanSub)?.title
+
+                            // Bersihkan teks kriteria dari kolom Kriteria jika ada, atau ambil dari katalog
+                            const cleanedSheetCriteria = lastCriteriaText
+                                ? lastCriteriaText.split(/Referensi\/Kriteria Audit\s*:/i)[0].replace(/\s+/g, ' ').trim()
+                                : '';
+                            const catalogTitle = (cleanedSheetCriteria.length >= 12 ? cleanedSheetCriteria : '')
+                                || FULL_SUB_ELEMENTS_CATALOG.find(c => c.code === cleanSub)?.title
                                 || DEFAULT_ELEMENTS.find(e => e.id === elId)?.name
                                 || 'Kriteria SMK3 PP 50/2012';
+
                             parsedDetails.push({
                                 airportCode: codeUse,
                                 airportName: geo.name,
