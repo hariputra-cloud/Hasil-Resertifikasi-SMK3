@@ -291,7 +291,7 @@
                     </h2>
 
                     <p class="text-sm sm:text-base text-teal-50/90 leading-relaxed max-w-2xl">
-                        Infografis capaian penerapan Sistem Manajemen Keselamatan dan Kesehatan Kerja (PP No. 50 Tahun 2012) yang dilaksanakan di <strong id="hero-airport-count" class="text-white underline decoration-coral-400 decoration-2 underline-offset-4">15 Bandara / Kantor Cabang (KC)</strong>.
+                        Laporan infografis terpadu capaian penerapan Sistem Manajemen Keselamatan dan Kesehatan Kerja (PP No. 50 Tahun 2012) yang dilaksanakan di <strong id="hero-airport-count" class="text-white underline decoration-coral-400 decoration-2 underline-offset-4">15 Bandara / Kantor Cabang (KC)</strong>.
                     </p>
 
                     <!-- Mini Quick Metrics Strip di Hero -->
@@ -411,41 +411,6 @@
                     <span id="kpi-min-airport" class="font-bold text-slate-800 truncate">BTJ – Sultan Iskandar Muda</span>
                     <span id="kpi-min-meta" class="font-mono text-[11px] font-bold text-coral-600 bg-coral-100/80 border border-coral-300/70 px-2 py-0.5 rounded-md shrink-0">16 Minor</span>
                 </div>
-            </div>
-        </section>
-
-        <!-- BENTO INSIGHTS STRIP (INDIKATOR KINERJA AUDIT KORPORAT) -->
-        <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <div class="rounded-2xl px-4 py-3.5 bg-gradient-to-br from-aero-900 to-aero-800 text-white border border-teal-700/60 shadow-sm flex items-center justify-between gap-2">
-                <div>
-                    <span class="block text-[10px] font-mono uppercase tracking-wider text-mint-300">Kriteria Audit PP 50/2012</span>
-                    <span class="text-sm sm:text-base font-extrabold">166 Kriteria</span>
-                </div>
-                <span class="px-2.5 py-1 rounded-lg bg-white/10 font-mono text-xs font-bold text-mint-300">Lanjutan</span>
-            </div>
-
-            <div class="rounded-2xl px-4 py-3.5 bg-white/90 border border-mint-300/80 shadow-2xs flex items-center justify-between gap-2">
-                <div>
-                    <span class="block text-[10px] font-mono uppercase tracking-wider text-teal-800">Efektivitas Kepatuhan</span>
-                    <span id="bento-compliance-ratio" class="text-sm sm:text-base font-extrabold text-aero-950">2.316 / 2.490</span>
-                </div>
-                <span class="px-2.5 py-1 rounded-lg bg-mint-100 font-mono text-xs font-extrabold text-teal-900">Kriteria OK</span>
-            </div>
-
-            <div class="rounded-2xl px-4 py-3.5 bg-white/90 border border-coral-300/80 shadow-2xs flex items-center justify-between gap-2">
-                <div>
-                    <span class="block text-[10px] font-mono uppercase tracking-wider text-coral-600">Selisih Skor (Spread)</span>
-                    <span id="bento-score-spread" class="text-sm sm:text-base font-extrabold text-aero-950">5,42%</span>
-                </div>
-                <span class="px-2.5 py-1 rounded-lg bg-coral-50 font-mono text-xs font-bold text-coral-600">Max–Min</span>
-            </div>
-
-            <div class="rounded-2xl px-4 py-3.5 bg-white/90 border border-teal-200 shadow-2xs flex items-center justify-between gap-2">
-                <div>
-                    <span class="block text-[10px] font-mono uppercase tracking-wider text-aero-700">Konsentrasi 2 Elemen Utama</span>
-                    <span id="bento-top2-share" class="text-sm sm:text-base font-extrabold text-aero-950">38,5%</span>
-                </div>
-                <span class="px-2.5 py-1 rounded-lg bg-aero-50 font-mono text-xs font-bold text-aero-800">Elemen 6 &amp; 7</span>
             </div>
         </section>
 
@@ -1802,18 +1767,6 @@
             setText('kpi-min-score', formatIndoPercent(stats.minAirport.score));
             setText('kpi-min-airport', `${stats.minAirport.code} – ${stats.minAirport.name}`);
             setText('kpi-min-meta', `${stats.minAirport.findings} Minor`);
-
-            const totalCriteria = stats.count * 166;
-            const metCriteria = Math.max(0, totalCriteria - stats.totalFindings);
-            setText('bento-compliance-ratio', `${metCriteria.toLocaleString('id-ID')} / ${totalCriteria.toLocaleString('id-ID')}`);
-            const spread = Math.max(0, stats.maxAirport.score - stats.minAirport.score);
-            setText('bento-score-spread', formatIndoPercent(spread));
-
-            const sortedEl = [...elementsData].sort((a, b) => b.count - a.count);
-            const totalEl = sortedEl.reduce((s, e) => s + (Number(e.count) || 0), 0);
-            const top2Sum = (sortedEl[0]?.count || 0) + (sortedEl[1]?.count || 0);
-            const top2Share = totalEl > 0 ? ((top2Sum / totalEl) * 100).toFixed(1).replace('.', ',') + '%' : '0,0%';
-            setText('bento-top2-share', top2Share);
 
             const rankAvgEl = document.getElementById('ranking-avg-badge');
             if (rankAvgEl) rankAvgEl.textContent = `Rata-rata: ${formatIndoPercent(stats.avgScore)}`;
