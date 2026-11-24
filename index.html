@@ -291,7 +291,7 @@
                     </h2>
 
                     <p class="text-sm sm:text-base text-teal-50/90 leading-relaxed max-w-2xl">
-                        Infografis capaian penerapan Sistem Manajemen Keselamatan dan Kesehatan Kerja (PP No. 50 Tahun 2012) yang dilaksanakan di <strong id="hero-airport-count" class="text-white underline decoration-coral-400 decoration-2 underline-offset-4">15 Bandara / Kantor Cabang (KC)</strong>.
+                        Laporan infografis terpadu capaian penerapan Sistem Manajemen Keselamatan dan Kesehatan Kerja (PP No. 50 Tahun 2012) yang dilaksanakan di <strong id="hero-airport-count" class="text-white underline decoration-coral-400 decoration-2 underline-offset-4">15 Bandara / Kantor Cabang (KC)</strong>.
                     </p>
 
                     <!-- Mini Quick Metrics Strip di Hero -->
@@ -344,7 +344,7 @@
                     </div>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span class="text-slate-500">34 Kantor Cabang & 6 Kantor Regional</span>
+                    <span class="text-slate-500">Sumatera hingga Papua</span>
                     <span class="font-bold text-aero-800 bg-aero-50 border border-teal-200/70 px-2 py-0.5 rounded-md">100% Terverifikasi</span>
                 </div>
             </div>
@@ -413,13 +413,13 @@
                 </div>
             </div>
 
-            <!-- KPI 5: Pertumbuhan Korporat (2025 vs 2026) -->
+            <!-- KPI 5: Pertumbuhan Korporat (2023 vs 2026) -->
             <div onclick="openGrowthModal()" class="glass-card rounded-2xl p-5 relative overflow-hidden border-t-4 border-t-emerald-500 cursor-pointer group" title="Klik untuk melihat tabel perbandingan growth seluruh 15 Bandara/KC">
                 <div class="flex items-start justify-between">
                     <div>
                         <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">Pertumbuhan Korporat</p>
                         <div class="mt-2 flex items-baseline gap-2.5">
-                            <span id="kpi-corp-growth" class="text-3xl sm:text-4xl font-extrabold text-emerald-600">+1,41%</span>
+                            <span id="kpi-corp-growth" class="text-3xl sm:text-4xl font-extrabold text-emerald-600">+1,40%</span>
                             <span class="text-xs font-bold uppercase px-2 py-0.5 rounded-md bg-emerald-50 group-hover:bg-emerald-600 group-hover:text-white text-emerald-700 border border-emerald-300/70 transition">Detail ↗</span>
                         </div>
                     </div>
@@ -430,8 +430,8 @@
                     </div>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs gap-2">
-                    <span class="font-bold text-slate-800 truncate">Tren Capaian (vs 2025)</span>
-                    <span id="kpi-corp-prev" class="font-mono text-[11px] font-bold text-emerald-900 bg-emerald-100 border border-emerald-300/70 px-2 py-0.5 rounded-md shrink-0">2025: 91,72%</span>
+                    <span class="font-bold text-slate-800 truncate">Tren Capaian (vs 2023)</span>
+                    <span id="kpi-corp-prev" class="font-mono text-[11px] font-bold text-emerald-900 bg-emerald-100 border border-emerald-300/70 px-2 py-0.5 rounded-md shrink-0">2023: 91,72%</span>
                 </div>
             </div>
 
@@ -524,6 +524,7 @@
                     <select id="ranking-sort-select" onchange="renderAirportRanking()" class="text-xs font-semibold bg-aero-50 border border-teal-200 text-aero-900 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-aero-500">
                         <option value="score-desc">Nilai Tertinggi</option>
                         <option value="score-asc">Nilai Terendah</option>
+                        <option value="growth-desc">Growth Tertinggi</option>
                         <option value="findings-desc">Temuan Terbanyak</option>
                         <option value="code-asc">Kode Bandara (A-Z)</option>
                     </select>
@@ -536,6 +537,59 @@
                 <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
                     <span>Ambang batas Bendera Emas: <strong class="text-aero-900">85,00%</strong></span>
                     <span id="ranking-avg-badge" class="font-mono font-bold text-aero-800">Rata-rata: 93,01%</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8B. PERBANDINGAN CAPAIAN & GROWTH PER BANDARA (2023 VS 2026) -->
+        <section class="glass-card rounded-3xl overflow-hidden border border-teal-200/80">
+            <!-- Header Card -->
+            <div class="px-5 sm:px-6 py-4 bg-gradient-to-r from-aero-950 via-aero-900 to-emerald-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="space-y-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="font-mono text-[11px] font-extrabold px-2.5 py-0.5 rounded-md bg-emerald-400 text-slate-950">GROWTH ANALYTICS</span>
+                        <span id="main-growth-corp-badge" class="font-mono text-xs font-bold text-mint-300">Korporat: +1,40%</span>
+                        <span id="main-growth-summary-pill" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-white/10 text-teal-100 border border-white/15">11 Naik • 3 Tetap • 1 Turun</span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-extrabold text-white">Perbandingan Capaian &amp; Growth per Bandara (2023 vs 2026)</h3>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0 no-print">
+                    <select id="main-growth-sort-select" onchange="renderMainGrowthTable()" class="text-xs font-bold bg-white/10 hover:bg-white/15 text-white border border-white/20 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-mint-400 cursor-pointer">
+                        <option value="score-desc" class="text-slate-900">Urutkan: Capaian 2026 Tertinggi</option>
+                        <option value="growth-desc" class="text-slate-900">Urutkan: Growth Tertinggi</option>
+                        <option value="growth-asc" class="text-slate-900">Urutkan: Growth Terendah</option>
+                        <option value="code-asc" class="text-slate-900">Urutkan: Kode Bandara (A-Z)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Table Body -->
+            <div class="p-4 sm:p-5">
+                <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                        <thead class="bg-slate-100/90 text-slate-700 font-extrabold uppercase text-[11px] tracking-wider">
+                            <tr>
+                                <th class="py-3 px-3.5">Kode</th>
+                                <th class="py-3 px-3.5">Bandar Udara / KC</th>
+                                <th class="py-3 px-3.5 text-right">Capaian 2023 (%)</th>
+                                <th class="py-3 px-3.5 text-right">Capaian 2026 (%)</th>
+                                <th class="py-3 px-3.5 text-right hidden sm:table-cell">Selisih (Poin)</th>
+                                <th class="py-3 px-3.5 text-right">Growth (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="main-growth-tbody" class="divide-y divide-slate-200/80 bg-white">
+                            <!-- Diisi dinamis oleh JS -->
+                        </tbody>
+                        <tfoot id="main-growth-tfoot" class="bg-aero-950 text-white font-extrabold text-xs sm:text-sm">
+                            <!-- Diisi dinamis oleh JS -->
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-500">
+                    <span>Formula: <strong class="font-mono text-slate-700">(Capaian 2026 − Capaian 2023) / Capaian 2023 × 100%</strong></span>
+                    <span class="text-slate-500">Klik baris bandara untuk menyorot lokasi di peta geografis.</span>
                 </div>
             </div>
         </section>
@@ -1014,7 +1068,7 @@
     </div>
 
     <!-- =====================================================================
-         MODAL: PERBANDINGAN GROWTH CAPAIAN SMK3 (2025 VS 2026)
+         MODAL: PERBANDINGAN GROWTH CAPAIAN SMK3 (2023 VS 2026)
     ====================================================================== -->
     <div id="growth-detail-modal" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target===this) closeGrowthModal()">
         <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-teal-200 overflow-hidden">
@@ -1022,9 +1076,9 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <span class="font-mono text-[11px] font-extrabold px-2.5 py-0.5 rounded-md bg-emerald-500 text-slate-950">GROWTH ANALYTICS</span>
-                        <span id="growth-modal-corp-badge" class="font-mono text-xs font-bold text-mint-300">Korporat: +1,41%</span>
+                        <span id="growth-modal-corp-badge" class="font-mono text-xs font-bold text-mint-300">Korporat: +1,40%</span>
                     </div>
-                    <h3 class="text-base sm:text-lg font-extrabold text-white mt-1">Perbandingan Capaian &amp; Growth per Bandara (2025 vs 2026)</h3>
+                    <h3 class="text-base sm:text-lg font-extrabold text-white mt-1">Perbandingan Capaian &amp; Growth per Bandara (2023 vs 2026)</h3>
                 </div>
                 <button onclick="closeGrowthModal()" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition cursor-pointer shrink-0">✕</button>
             </div>
@@ -1036,7 +1090,7 @@
                             <tr>
                                 <th class="p-3">Kode</th>
                                 <th class="p-3">Bandar Udara / KC</th>
-                                <th class="p-3 text-right">Capaian 2025 (%)</th>
+                                <th class="p-3 text-right">Capaian 2023 (%)</th>
                                 <th class="p-3 text-right">Capaian 2026 (%)</th>
                                 <th class="p-3 text-right">Growth (%)</th>
                             </tr>
@@ -1052,7 +1106,7 @@
             </div>
 
             <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
-                <span>Formula: <strong class="font-mono text-slate-700">(Capaian 2026 − Capaian 2025) / Capaian 2025 × 100%</strong></span>
+                <span>Formula: <strong class="font-mono text-slate-700">(Capaian 2026 − Capaian 2023) / Capaian 2023 × 100%</strong></span>
                 <button onclick="closeGrowthModal()" class="px-4 py-1.5 rounded-xl bg-aero-900 hover:bg-aero-800 text-white font-bold transition cursor-pointer">Tutup</button>
             </div>
         </div>
@@ -1109,7 +1163,7 @@
          */
         const DEFAULT_AIRPORTS = [
             { code: 'BDO', name: 'Husein Sastranegara', city: 'Bandung', lat: -6.9006, lng: 107.5763, score: 95.78, prevScore: 96.98, findings: 7, status: 'Sudah', focusArea: 'Dokumentasi revisi SOP & inspeksi berkala APAR', analysisNote: 'Capaian tertinggi bersama DJB (95,78%). Tata kelola P2K3, pengendalian izin kerja kontraktor, dan kesiapsiagaan tanggap darurat berjalan sangat matang dengan hanya 7 temuan minor.' },
-            { code: 'DJB', name: 'Sultan Thaha', city: 'Jambi', lat: -1.6380, lng: 103.6444, score: 95.78, prevScore: 95.75, findings: 7, status: 'Sudah', focusArea: 'Pembaruan daftar LDKB/MSDS bahan kimia utilitas', analysisNote: 'Capaian tertinggi bersama BDO (95,78%) dengan hanya 7 temuan minor. Penerapan SMK3 berjalan sangat konsisten; penyempurnaan terbatas pada pelabelan sekunder bahan kimia utilitas.' },
+            { code: 'DJB', name: 'Sultan Thaha', city: 'Jambi', lat: -1.6380, lng: 103.6444, score: 95.78, prevScore: 95.78, findings: 7, status: 'Sudah', focusArea: 'Pembaruan daftar LDKB/MSDS bahan kimia utilitas', analysisNote: 'Capaian tertinggi bersama BDO (95,78%) dengan hanya 7 temuan minor. Penerapan SMK3 berjalan sangat konsisten; penyempurnaan terbatas pada pelabelan sekunder bahan kimia utilitas.' },
             { code: 'PNK', name: 'Supadio', city: 'Pontianak', lat: -0.1507, lng: 109.4039, score: 94.58, prevScore: 93.37, findings: 9, status: 'Sudah', focusArea: 'Pengelolaan limbah B3 & catatan neraca B3', analysisNote: 'Peringkat 3 PT Angkasa Pura Indonesia dengan capaian unggul 94,58% (9 temuan minor). Fokus perbaikan diarahkan pada kelengkapan logbook keluar-masuk TPS Limbah B3 dan simbol kemasan.' },
             { code: 'PDG', name: 'Minangkabau', city: 'Padang Pariaman', lat: -0.7869, lng: 100.2806, score: 93.98, prevScore: 93.98, findings: 10, status: 'Sudah', focusArea: 'Inspeksi rutin hydrant & jalur evakuasi area kargo', analysisNote: 'Berada di atas rata-rata PT Angkasa Pura Indonesia (93,98%) dengan tata kelola risiko operasional yang terkendali. Perlu memastikan akses panel hidran dan jalur evakuasi gudang kargo bebas hambatan.' },
             { code: 'MDC', name: 'Sam Ratulangi', city: 'Manado', lat: 1.5492, lng: 124.9261, score: 93.98, prevScore: 92.77, findings: 10, status: 'Sudah', focusArea: 'Pengelolaan B3, izin kerja & pemeriksaan kesehatan kerja', analysisNote: 'Capaian kuat di atas rata-rata PT Angkasa Pura Indonesia (93,98% dengan 10 temuan minor). Penyempurnaan difokuskan pada administrasi B3, izin kerja berisiko tinggi, dan dokumentasi MCU berkala.' },
@@ -1118,11 +1172,11 @@
             { code: 'PKU', name: 'Sultan Syarif Kasim II', city: 'Pekanbaru', lat: 0.4608, lng: 101.4450, score: 92.77, prevScore: 90.96, findings: 12, status: 'Sudah', focusArea: 'Kesiapsiagaan tanggap darurat & pencatatan simulasi', analysisNote: 'Penerapan prosedur kesiapsiagaan tanggap darurat sudah kuat (92,77%), namun laporan evaluasi pasca-simulasi perlu dilengkapi matriks tindak lanjut yang lebih terukur.' },
             { code: 'PGK', name: 'Depati Amir', city: 'Pangkalpinang', lat: -2.1622, lng: 106.1392, score: 92.77, prevScore: 92.77, findings: 12, status: 'Sudah', focusArea: 'Kalibrasi alat ukur & pemantauan iklim kerja', analysisNote: 'Sistem dokumentasi K3 tertata rapi (92,77%); perlu penjadwalan ulang pengujian iklim kerja dan kebisingan di ruang genset serta workshop GSE sesuai periode regulasi.' },
             { code: 'DTB', name: 'Sisingamangaraja XII', city: 'Silangit', lat: 2.2594, lng: 98.9953, score: 92.77, prevScore: 92.16, findings: 12, status: 'Sudah', focusArea: 'Verifikasi efektivitas tindakan korektif temuan internal', analysisNote: 'Kepatuhan operasional SMK3 terpenuhi dengan baik (92,77%). Disarankan memperkuat verifikasi penutupan temuan inspeksi bulanan P2K3.' },
-            { code: 'UPG', name: 'Sultan Hasanuddin', city: 'Maros', lat: -5.0616, lng: 119.5540, score: 92.17, prevScore: 87.95, findings: 13, status: 'Sudah', focusArea: 'Pemantauan kebisingan & pencahayaan area workshop', analysisNote: 'Kinerja sangat solid dengan lonjakan tertinggi (+4,80% dibanding 2025) pada skala bandara hub kawasan timur Indonesia (92,17% dengan 13 temuan minor).' },
-            { code: 'LOP', name: 'Zainuddin Abdul Madjid', city: 'Lombok Tengah', lat: -8.7573, lng: 116.2767, score: 92.17, prevScore: 89.16, findings: 13, status: 'Sudah', focusArea: 'Pengendalian Work Permit mitra kerja sisi udara', analysisNote: 'Kepatuhan tinggi (92,17%, tumbuh +3,38% dari 2025) dengan sistem manajemen keselamatan terintegrasi; temuan minor terbatas pada konsistensi pelampiran JSA pada sebagian pekerjaan vendor.' },
-            { code: 'TNJ', name: 'Raja Haji Fisabilillah', city: 'Tanjungpinang', lat: 0.9227, lng: 104.5322, score: 91.56, prevScore: 88.55, findings: 14, status: 'Sudah', focusArea: 'Pengendalian dokumen K3 & pemantauan lingkungan kerja', analysisNote: 'Meraih kategori Memuaskan (91,56%, tumbuh +3,40% dari 2025). Membutuhkan penertiban master list dokumen SMK3 serta realisasi uji lingkungan kerja berkala pada unit utilitas dan PKP-PK.' },
-            { code: 'BIK', name: 'Frans Kaisiepo', city: 'Biak', lat: -1.1900, lng: 136.1080, score: 90.96, prevScore: 89.15, findings: 15, status: 'Sudah', focusArea: 'Pengawasan kepatuhan APD & Work Permit vendor', analysisNote: 'Tetap meraih kategori Memuaskan (Bendera Emas ≥ 85%) dengan skor 90,96% (+2,03% vs 2025). Menjadi prioritas pendampingan CAPA untuk menurunkan 15 temuan minor pada Elemen 6 dan 7.' },
-            { code: 'BTJ', name: 'Sultan Iskandar Muda', city: 'Banda Aceh', lat: 5.5235, lng: 95.4204, score: 90.36, prevScore: 89.15, findings: 16, status: 'Sudah', focusArea: 'Pengendalian risiko operasional, dokumen & pemantauan K3', analysisNote: 'Meraih kategori Memuaskan (90,36%, tumbuh +1,36% vs 2025), namun tercatat memiliki temuan minor terbanyak (16 temuan) pada Elemen 6 dan 7 sehingga memerlukan pendampingan penutupan CAPA.' }
+            { code: 'UPG', name: 'Sultan Hasanuddin', city: 'Maros', lat: -5.0616, lng: 119.5540, score: 92.17, prevScore: 87.95, findings: 13, status: 'Sudah', focusArea: 'Pemantauan kebisingan & pencahayaan area workshop', analysisNote: 'Kinerja sangat solid dengan lonjakan tertinggi (+4,80% dibanding 2023) pada skala bandara hub kawasan timur Indonesia (92,17% dengan 13 temuan minor).' },
+            { code: 'LOP', name: 'Zainuddin Abdul Madjid', city: 'Lombok Tengah', lat: -8.7573, lng: 116.2767, score: 92.17, prevScore: 89.16, findings: 13, status: 'Sudah', focusArea: 'Pengendalian Work Permit mitra kerja sisi udara', analysisNote: 'Kepatuhan tinggi (92,17%, tumbuh +3,38% dari 2023) dengan sistem manajemen keselamatan terintegrasi; temuan minor terbatas pada konsistensi pelampiran JSA pada sebagian pekerjaan vendor.' },
+            { code: 'TNJ', name: 'Raja Haji Fisabilillah', city: 'Tanjungpinang', lat: 0.9227, lng: 104.5322, score: 91.56, prevScore: 88.55, findings: 14, status: 'Sudah', focusArea: 'Pengendalian dokumen K3 & pemantauan lingkungan kerja', analysisNote: 'Meraih kategori Memuaskan (91,56%, tumbuh +3,40% dari 2023). Membutuhkan penertiban master list dokumen SMK3 serta realisasi uji lingkungan kerja berkala pada unit utilitas dan PKP-PK.' },
+            { code: 'BIK', name: 'Frans Kaisiepo', city: 'Biak', lat: -1.1900, lng: 136.1080, score: 90.96, prevScore: 89.15, findings: 15, status: 'Sudah', focusArea: 'Pengawasan kepatuhan APD & Work Permit vendor', analysisNote: 'Tetap meraih kategori Memuaskan (Bendera Emas ≥ 85%) dengan skor 90,96% (+2,03% vs 2023). Menjadi prioritas pendampingan CAPA untuk menurunkan 15 temuan minor pada Elemen 6 dan 7.' },
+            { code: 'BTJ', name: 'Sultan Iskandar Muda', city: 'Banda Aceh', lat: 5.5235, lng: 95.4204, score: 90.36, prevScore: 89.15, findings: 16, status: 'Sudah', focusArea: 'Pengendalian risiko operasional, dokumen & pemantauan K3', analysisNote: 'Meraih kategori Memuaskan (90,36%, tumbuh +1,36% vs 2023), namun tercatat memiliki temuan minor terbanyak (16 temuan) pada Elemen 6 dan 7 sehingga memerlukan pendampingan penutupan CAPA.' }
         ];
 
         const DEFAULT_ELEMENTS = [
@@ -1502,68 +1556,73 @@
                 const rankedAirports = [...airportsData].sort((a, b) => b.score - a.score || a.findings - b.findings);
 
                 // =============================================================
-                // SHEET 1: REKAPITULASI CAPAIAN KORPORAT & SETIAP BANDARA / KC
+                // SHEET 1: REKAP CAPAIAN & TEMUAN KORPORAT PER BANDARA / KC
                 // =============================================================
                 const sheet1Rows = [
-                    ['SUMMARY REPORT RESERTIFIKASI SMK3 TAHUN 2026 – REKAPITULASI KORPORASI & PER BANDAR UDARA'],
-                    ['PT ANGKASA PURA INDONESIA • PP NO. 50 TAHUN 2012 (166 KRITERIA TINGKAT LANJUTAN)'],
+                    ['SUMMARY REPORT RESERTIFIKASI SMK3 TAHUN 2026 – PT ANGKASA PURA INDONESIA'],
+                    ['REKAPITULASI CAPAIAN & TEMUAN MINOR PER BANDARA / KANTOR CABANG (KC)'],
                     [],
-                    ['Peringkat', 'Kode Bandara', 'Nama Bandar Udara / KC', 'Kota / Provinsi', 'Nilai Capaian (%)', 'Jumlah Temuan Minor', 'Kategori Penghargaan', 'Fokus Evaluasi Utama', 'Catatan Analisa']
+                    ['Peringkat', 'Kode Bandara', 'Nama Bandar Udara / KC', 'Kota / Lokasi', 'Nilai Capaian 2023 (%)', 'Nilai Capaian 2026 (%)', 'Growth (%)', 'Jumlah Temuan Minor', 'Kategori', 'Fokus Evaluasi Utama']
                 ];
 
                 rankedAirports.forEach((a, idx) => {
+                    const prev = Number(a.prevScore ?? a.score);
+                    const growthPct = prev > 0 ? Number((((a.score - prev) / prev) * 100).toFixed(2)) : 0;
                     sheet1Rows.push([
                         idx + 1,
                         a.code,
                         a.name,
                         a.city,
+                        Number(prev.toFixed(2)),
                         Number(a.score.toFixed(2)),
+                        growthPct,
                         Number(a.findings),
-                        a.score >= 85 ? 'Memuaskan (Bendera Emas)' : 'Baik (Bendera Perak)',
-                        a.focusArea,
-                        a.analysisNote
+                        a.score >= 85 ? 'Memuaskan (Bendera Emas)' : 'Baik',
+                        a.focusArea
                     ]);
                 });
 
                 sheet1Rows.push([
-                    '',
+                    '-',
                     'KORPORAT',
                     `RATA-RATA / TOTAL (${stats.count} BANDARA/KC)`,
                     'Seluruh Indonesia',
+                    Number(stats.avgPrevScore.toFixed(2)),
                     Number(stats.avgScore.toFixed(2)),
+                    Number(stats.corpGrowth.toFixed(2)),
                     stats.totalFindings,
-                    `${stats.goldCount}/${stats.count} Bendera Emas`,
-                    'Zero Temuan Kritikal & Mayor',
-                    `Tingkat pemenuhan korporat ${stats.avgScore.toFixed(2)}% dengan total ${stats.totalFindings} temuan minor.`
+                    '100% Memuaskan',
+                    'Zero Temuan Kritikal & Mayor'
                 ]);
 
                 const ws1 = XLSX.utils.aoa_to_sheet(sheet1Rows);
                 ws1['!cols'] = [
-                    { wch: 10 }, { wch: 14 }, { wch: 28 }, { wch: 20 },
-                    { wch: 16 }, { wch: 20 }, { wch: 24 }, { wch: 42 }, { wch: 56 }
+                    { wch: 10 }, { wch: 14 }, { wch: 28 }, { wch: 18 },
+                    { wch: 20 }, { wch: 20 }, { wch: 13 }, { wch: 20 }, { wch: 24 }, { wch: 44 }
                 ];
 
                 // =============================================================
-                // SHEET 2: JUMLAH TEMUAN MINOR PER ELEMEN 1-12 (KORPORASI & PER BANDARA)
+                // SHEET 2: MATRIKS TEMUAN PER ELEMEN (1–12) KORPORAT & BANDARA
                 // =============================================================
-                const sheet2Header = ['No. Elemen', 'Nama Elemen SMK3 (PP No. 50 Tahun 2012)', 'Total Korporasi', 'Persentase (%)', ...airportCodes];
                 const sheet2Rows = [
-                    ['REKAPITULASI JUMLAH TEMUAN MINOR PER ELEMEN (1 – 12) SECARA KORPORASI & PER BANDAR UDARA'],
-                    ['PT ANGKASA PURA INDONESIA • RESERTIFIKASI SMK3 TAHUN 2026'],
+                    ['DISTRIBUSI TEMUAN MINOR PER ELEMEN SMK3 (ELEMEN 1 – 12) • KORPORAT & PER BANDARA'],
+                    ['PP NO. 50 TAHUN 2012 (TINGKAT LANJUTAN – 166 KRITERIA)'],
                     [],
-                    sheet2Header
+                    ['No Elemen', 'Elemen', 'Nama Elemen SMK3', 'Total Korporat', 'Porsi (%)', ...airportCodes]
                 ];
 
-                const grandTotalElem = elementsData.reduce((s, e) => s + (Number(e.count) || 0), 0);
+                const grandTotalElems = elementsData.reduce((s, e) => s + (Number(e.count) || 0), 0);
                 elementsData.forEach(el => {
-                    const pct = grandTotalElem > 0 ? Number(((el.count / grandTotalElem) * 100).toFixed(2)) : 0;
-                    const perAirportCounts = airportCodes.map(code => elemAirportMatrix[el.id]?.[code] ?? 0);
+                    const rowCounts = airportCodes.map(code => elemAirportMatrix[el.id]?.[code] ?? 0);
+                    const totalRow = rowCounts.reduce((s, v) => s + v, 0);
+                    const pct = grandTotalElems > 0 ? Number(((totalRow / grandTotalElems) * 100).toFixed(2)) : 0;
                     sheet2Rows.push([
+                        el.id,
                         el.short,
                         el.name,
-                        Number(el.count),
+                        totalRow,
                         pct,
-                        ...perAirportCounts
+                        ...rowCounts
                     ]);
                 });
 
@@ -1571,75 +1630,67 @@
                     elementsData.reduce((sum, el) => sum + (elemAirportMatrix[el.id]?.[code] ?? 0), 0)
                 );
                 sheet2Rows.push([
+                    '-',
                     'TOTAL',
-                    'JUMLAH KESELURUHAN TEMUAN MINOR (ELEMEN 1 – 12)',
-                    grandTotalElem,
-                    100.00,
+                    'TOTAL TEMUAN MINOR SELURUH ELEMEN',
+                    colTotalsSheet2.reduce((s, v) => s + v, 0),
+                    100,
                     ...colTotalsSheet2
                 ]);
 
                 const ws2 = XLSX.utils.aoa_to_sheet(sheet2Rows);
                 ws2['!cols'] = [
-                    { wch: 13 }, { wch: 46 }, { wch: 16 }, { wch: 15 },
+                    { wch: 10 }, { wch: 12 }, { wch: 44 }, { wch: 15 }, { wch: 11 },
                     ...airportCodes.map(() => ({ wch: 7 }))
                 ];
 
                 // =============================================================
-                // SHEET 3: JUMLAH TEMUAN MINOR SELURUH SUB-ELEMEN (KORPORASI & PER BANDARA)
+                // SHEET 3: MATRIKS TEMUAN SUB-ELEMEN KORPORAT & PER BANDARA
                 // =============================================================
-                const sheet3Header = ['No', 'Kode Kriteria / Sub-Elemen', 'Elemen Induk', 'Uraian Kriteria Sub-Elemen SMK3', 'Total Korporasi', 'Porsi (%)', ...airportCodes];
                 const sheet3Rows = [
-                    ['REKAPITULASI JUMLAH TEMUAN MINOR SELURUH SUB-ELEMEN SECARA KORPORASI & PER BANDAR UDARA'],
-                    ['PT ANGKASA PURA INDONESIA • RESERTIFIKASI SMK3 TAHUN 2026'],
+                    ['REKAPITULASI TEMUAN MINOR PER SUB-ELEMEN / KRITERIA AUDIT • KORPORAT & PER BANDARA'],
+                    ['URUT BERDASARKAN JUMLAH TEMUAN TERBANYAK'],
                     [],
-                    sheet3Header
+                    ['Kode Kriteria', 'Elemen Induk', 'Judul Kriteria / Sub-Elemen', 'Total Korporat', ...airportCodes]
                 ];
 
-                const sortedSubs = [...fullSubElementsList].sort((a, b) => b.count - a.count || a.code.localeCompare(b.code));
-                const grandTotalSub = sortedSubs.reduce((s, item) => s + (Number(item.count) || 0), 0);
-
-                sortedSubs.forEach((sub, idx) => {
-                    const pct = grandTotalSub > 0 ? Number(((sub.count / grandTotalSub) * 100).toFixed(2)) : 0;
-                    const perAirportCounts = airportCodes.map(code => subAirportMatrix[sub.code]?.[code] ?? 0);
+                fullSubElementsList.forEach(sub => {
+                    const rowCounts = airportCodes.map(code => subAirportMatrix[sub.code]?.[code] ?? 0);
+                    const totalSub = rowCounts.reduce((s, v) => s + v, 0);
                     sheet3Rows.push([
-                        idx + 1,
                         sub.code,
                         sub.element,
                         sub.title,
-                        Number(sub.count),
-                        pct,
-                        ...perAirportCounts
+                        totalSub,
+                        ...rowCounts
                     ]);
                 });
 
                 const colTotalsSheet3 = airportCodes.map(code =>
-                    sortedSubs.reduce((sum, sub) => sum + (subAirportMatrix[sub.code]?.[code] ?? 0), 0)
+                    fullSubElementsList.reduce((sum, sub) => sum + (subAirportMatrix[sub.code]?.[code] ?? 0), 0)
                 );
                 sheet3Rows.push([
-                    '',
                     'TOTAL',
-                    '',
-                    'TOTAL KESELURUHAN TEMUAN MINOR SELURUH SUB-ELEMEN',
-                    grandTotalSub,
-                    100.00,
+                    '-',
+                    'TOTAL TEMUAN SUB-ELEMEN TERIDENTIFIKASI',
+                    colTotalsSheet3.reduce((s, v) => s + v, 0),
                     ...colTotalsSheet3
                 ]);
 
                 const ws3 = XLSX.utils.aoa_to_sheet(sheet3Rows);
                 ws3['!cols'] = [
-                    { wch: 5 }, { wch: 22 }, { wch: 14 }, { wch: 52 }, { wch: 16 }, { wch: 12 },
+                    { wch: 14 }, { wch: 13 }, { wch: 52 }, { wch: 15 },
                     ...airportCodes.map(() => ({ wch: 7 }))
                 ];
 
                 // =============================================================
-                // SHEET 4: MATRIKS PER BANDARA UDARA (BARIS = BANDARA, KOLOM = ELEMEN 1-12)
+                // SHEET 4: MATRIKS BANDARA X ELEMEN (1–12)
                 // =============================================================
-                const elemColsHeader = elementsData.map(e => `Elemen ${e.id}`);
                 const sheet4Rows = [
-                    ['MATRIKS DISTRIBUSI TEMUAN MINOR PER BANDAR UDARA / KC TERHADAP ELEMEN 1 – 12'],
+                    ['MATRIKS TEMUAN MINOR PER BANDARA / KC TERHADAP ELEMEN 1 – 12'],
                     ['PT ANGKASA PURA INDONESIA • RESERTIFIKASI SMK3 TAHUN 2026'],
                     [],
-                    ['Kode Bandara', 'Nama Bandar Udara / KC', 'Nilai Capaian (%)', 'Total Temuan Minor', ...elemColsHeader]
+                    ['Kode Bandara', 'Nama Bandar Udara / KC', 'Nilai Capaian (%)', 'Total Temuan Minor', ...elementsData.map(e => e.short)]
                 ];
 
                 rankedAirports.forEach(a => {
@@ -1703,13 +1754,13 @@
                 ];
 
                 // =============================================================
-                // SHEET 6: PERBANDINGAN GROWTH CAPAIAN (2025 VS 2026)
+                // SHEET 6: PERBANDINGAN GROWTH CAPAIAN (2023 VS 2026)
                 // =============================================================
                 const sheet6Rows = [
-                    ['ANALISA PERTUMBUHAN (GROWTH) CAPAIAN RESERTIFIKASI SMK3 (2025 VS 2026)'],
+                    ['ANALISA PERTUMBUHAN (GROWTH) CAPAIAN RESERTIFIKASI SMK3 (2023 VS 2026)'],
                     ['PT ANGKASA PURA INDONESIA • KORPORASI & PER BANDAR UDARA'],
                     [],
-                    ['Kode Bandara', 'Nama Bandar Udara / KC', 'Nilai Capaian 2025 (%)', 'Nilai Capaian 2026 (%)', 'Growth (%)']
+                    ['Kode Bandara', 'Nama Bandar Udara / KC', 'Nilai Capaian 2023 (%)', 'Nilai Capaian 2026 (%)', 'Growth (%)']
                 ];
 
                 rankedAirports.forEach(a => {
@@ -1755,7 +1806,7 @@
                     XLSX.utils.book_append_sheet(wb, ws4, 'Matriks_Bandara_x_Elemen');
                     XLSX.utils.book_append_sheet(wb, ws5, 'Rincian_Temuan_Minor');
                 }
-                XLSX.utils.book_append_sheet(wb, ws6, 'Growth_2025_vs_2026');
+                XLSX.utils.book_append_sheet(wb, ws6, 'Growth_2023_vs_2026');
 
                 const dateStamp = new Date().toISOString().slice(0, 10);
                 const fileName = focusSection === 'elements'
@@ -1922,7 +1973,7 @@
                 corpGrowthEl.textContent = formatGrowth(stats.corpGrowth);
                 corpGrowthEl.className = `text-3xl sm:text-4xl font-extrabold ${stats.corpGrowth >= 0 ? 'text-emerald-600' : 'text-coral-600'}`;
             }
-            setText('kpi-corp-prev', `2025: ${formatIndoPercent(stats.avgPrevScore)}`);
+            setText('kpi-corp-prev', `2023: ${formatIndoPercent(stats.avgPrevScore)}`);
 
             const topGrowthScoreEl = document.getElementById('kpi-top-growth-score');
             if (topGrowthScoreEl) {
@@ -1984,13 +2035,80 @@
             document.getElementById('growth-detail-modal')?.classList.add('hidden');
         }
 
-        function initMap() {
-            const mapEl = document.getElementById('airport-map');
-            if (!mapEl || typeof L === 'undefined') return;
-            if (leafletMap) {
-                leafletMap.remove();
+        function renderMainGrowthTable() {
+            const tbody = document.getElementById('main-growth-tbody');
+            const tfoot = document.getElementById('main-growth-tfoot');
+            const badge = document.getElementById('main-growth-corp-badge');
+            const summaryPill = document.getElementById('main-growth-summary-pill');
+            const sortMode = document.getElementById('main-growth-sort-select')?.value || 'score-desc';
+            if (!tbody || !tfoot) return;
+
+            const stats = computeExecutiveStats();
+            const formatGrowth = (val) => (val > 0 ? '+' : '') + formatIndoPercent(val);
+            const formatDelta = (val) => (val > 0 ? '+' : '') + Number(val || 0).toFixed(2).replace('.', ',');
+
+            if (badge) badge.textContent = `Korporat: ${formatGrowth(stats.corpGrowth)}`;
+
+            let upCount = 0, flatCount = 0, downCount = 0;
+            const enriched = airportsData.map(a => {
+                const prev = Number(a.prevScore ?? a.score);
+                const delta = a.score - prev;
+                const growth = prev > 0 ? (delta / prev) * 100 : 0;
+                if (growth > 0.005) upCount++;
+                else if (growth < -0.005) downCount++;
+                else flatCount++;
+                return { ...a, prev, delta, growth };
+            });
+
+            if (summaryPill) {
+                summaryPill.textContent = `${upCount} Naik • ${flatCount} Tetap • ${downCount} Turun`;
             }
 
+            if (sortMode === 'score-desc') enriched.sort((a, b) => b.score - a.score || b.growth - a.growth);
+            else if (sortMode === 'growth-desc') enriched.sort((a, b) => b.growth - a.growth || b.score - a.score);
+            else if (sortMode === 'growth-asc') enriched.sort((a, b) => a.growth - b.growth || a.score - b.score);
+            else if (sortMode === 'code-asc') enriched.sort((a, b) => a.code.localeCompare(b.code));
+
+            tbody.innerHTML = enriched.map(a => {
+                const isUp = a.growth > 0.005;
+                const isDown = a.growth < -0.005;
+                const badgeClass = isUp
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                    : (isDown ? 'bg-coral-50 text-coral-600 border-coral-300' : 'bg-slate-100 text-slate-600 border-slate-300');
+                const arrow = isUp ? '▲ ' : (isDown ? '▼ ' : '');
+                const deltaClass = isUp ? 'text-emerald-700' : (isDown ? 'text-coral-600' : 'text-slate-500');
+
+                return `
+                    <tr onclick="focusAirportOnMap('${a.code}')" class="hover:bg-aero-50/70 transition cursor-pointer">
+                        <td class="py-2.5 px-3.5 font-mono text-xs font-extrabold text-aero-900">${a.code}</td>
+                        <td class="py-2.5 px-3.5">
+                            <span class="font-bold text-slate-900">${a.name}</span>
+                            <span class="hidden md:inline text-[11px] text-slate-400 ml-1.5">• ${a.city}</span>
+                        </td>
+                        <td class="py-2.5 px-3.5 text-right font-mono text-xs text-slate-500">${formatIndoPercent(a.prev)}</td>
+                        <td class="py-2.5 px-3.5 text-right font-mono text-xs font-extrabold text-aero-950">${formatIndoPercent(a.score)}</td>
+                        <td class="py-2.5 px-3.5 text-right font-mono text-xs font-semibold hidden sm:table-cell ${deltaClass}">${formatDelta(a.delta)}</td>
+                        <td class="py-2.5 px-3.5 text-right">
+                            <span class="inline-flex items-center justify-center min-w-[74px] font-mono text-[11px] font-extrabold px-2.5 py-0.5 rounded-lg border ${badgeClass}">${arrow}${formatGrowth(a.growth)}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            const corpDelta = stats.avgScore - stats.avgPrevScore;
+            tfoot.innerHTML = `
+                <tr>
+                    <td class="py-3 px-3.5 font-mono text-xs text-mint-300">GROWTH</td>
+                    <td class="py-3 px-3.5 text-xs">Rata-Rata Korporat (${stats.count} Bandara / KC)</td>
+                    <td class="py-3 px-3.5 text-right font-mono text-xs text-teal-100">${formatIndoPercent(stats.avgPrevScore)}</td>
+                    <td class="py-3 px-3.5 text-right font-mono text-xs text-white">${formatIndoPercent(stats.avgScore)}</td>
+                    <td class="py-3 px-3.5 text-right font-mono text-xs hidden sm:table-cell text-mint-300">${formatDelta(corpDelta)}</td>
+                    <td class="py-3 px-3.5 text-right font-mono text-xs text-mint-300">▲ ${formatGrowth(stats.corpGrowth)}</td>
+                </tr>
+            `;
+        }
+
+        function initMap() {
             leafletMap = L.map('airport-map', {
                 center: [-2.2, 117.5],
                 zoom: 5,
@@ -2134,15 +2252,31 @@
             const sortMode = document.getElementById('ranking-sort-select')?.value || 'score-desc';
             if (!container) return;
 
+            const getGrowthPct = (a) => {
+                const prev = Number(a.prevScore ?? a.score);
+                return prev > 0 ? ((a.score - prev) / prev) * 100 : 0;
+            };
+
             const sorted = [...airportsData];
             if (sortMode === 'score-desc') sorted.sort((a, b) => b.score - a.score || a.findings - b.findings);
             else if (sortMode === 'score-asc') sorted.sort((a, b) => a.score - b.score || b.findings - a.findings);
+            else if (sortMode === 'growth-desc') sorted.sort((a, b) => getGrowthPct(b) - getGrowthPct(a) || b.score - a.score);
             else if (sortMode === 'findings-desc') sorted.sort((a, b) => b.findings - a.findings || a.score - b.score);
             else if (sortMode === 'code-asc') sorted.sort((a, b) => a.code.localeCompare(b.code));
 
             container.innerHTML = sorted.map((a, idx) => {
                 const tier = getScoreTierColor(a.score);
                 const barWidth = Math.max(10, Math.min(100, ((a.score - 85) / 15) * 100));
+                const prev = Number(a.prevScore ?? a.score);
+                const growth = getGrowthPct(a);
+                const isUp = growth > 0.005;
+                const isDown = growth < -0.005;
+                const growthText = (growth > 0 ? '+' : '') + formatIndoPercent(growth);
+                const growthArrow = isUp ? '▲' : (isDown ? '▼' : '●');
+                const growthBadgeClass = isUp
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                    : (isDown ? 'bg-coral-50 text-coral-600 border-coral-300' : 'bg-slate-100 text-slate-600 border-slate-300');
+
                 return `
                     <div onclick="focusAirportOnMap('${a.code}')" class="p-3 rounded-2xl bg-white hover:bg-aero-50/70 border border-slate-200/90 hover:border-aero-400 transition cursor-pointer space-y-2 shadow-2xs">
                         <div class="flex items-center justify-between gap-2">
@@ -2151,11 +2285,14 @@
                                 <span class="font-mono text-xs font-extrabold px-2 py-0.5 rounded-md bg-aero-900 text-mint-300 shrink-0">${a.code}</span>
                                 <div class="min-w-0">
                                     <p class="text-xs font-extrabold text-slate-900 truncate">${a.name}</p>
-                                    <p class="text-[10px] text-slate-500 truncate">${a.city}</p>
+                                    <p class="text-[10px] text-slate-500 truncate">${a.city} <span class="text-slate-400">•</span> <span class="font-mono text-slate-600">2023: ${formatIndoPercent(prev)}</span></p>
                                 </div>
                             </div>
-                            <div class="text-right shrink-0">
-                                <span class="block font-mono text-xs font-extrabold text-aero-950">${formatIndoPercent(a.score)}</span>
+                            <div class="text-right shrink-0 space-y-1">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <span class="font-mono text-[10px] font-extrabold px-1.5 py-0.5 rounded-md border ${growthBadgeClass}" title="Growth dibandingkan Resertifikasi 2023">${growthArrow} ${growthText}</span>
+                                    <span class="font-mono text-xs font-extrabold text-aero-950">${formatIndoPercent(a.score)}</span>
+                                </div>
                                 <button type="button" onclick="event.stopPropagation(); openFindingsModal('airport', '${a.code}', 'Rincian Temuan Minor – ${a.code} (${a.name.replace(/'/g, "\\'")})')" class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${tier.badgeBg} hover:opacity-80 cursor-pointer">
                                     ${a.findings} Temuan ↗
                                 </button>
@@ -2671,6 +2808,7 @@
             updateHeroAndKpis(stats);
             updateMapMarkers();
             renderAirportRanking();
+            renderMainGrowthTable();
             renderElementsChart();
             renderSubElementsList();
             renderAirportAnalysisCards();
@@ -2998,7 +3136,7 @@
                         const growthRows = await fetchGvizSheetJsonp(sheetId, '269880550');
                         sheetsData['Sheet_269880550'] = growthRows;
                     } catch (e) {
-                        appendParserLog('Tab growth (gid=269880550) menggunakan baseline terkalibrasi 2025.');
+                        appendParserLog('Tab growth (gid=269880550) menggunakan baseline terkalibrasi 2023.');
                     }
                 }
                 const applied = processWorkbookData(sheetsData, `Google Sheet (gid=${gid} & 269880550)`);
